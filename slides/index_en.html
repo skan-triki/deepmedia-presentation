@@ -795,6 +795,122 @@
     }
     .img-overlay.is-open img { transform: scale(1); }
     .slide__media img, .slide--screenshot img { cursor: zoom-in; }
+
+    /* ── Portrait / Mobile responsive (9:16) ──────────── */
+    @media (orientation: portrait) {
+      .deck__fit {
+        width: 1080px;
+        height: 1920px;
+      }
+      .slide {
+        padding: 2.5rem 2rem 4rem;
+      }
+      .slide__brand {
+        top: 2rem; left: 2rem;
+      }
+      .slide__brand-logo { width: 6rem; }
+      .slide__number { font-size: 0.8rem; top: 2rem; right: 2rem; }
+      .slide__footer { bottom: 1.5rem; left: 2rem; right: 2rem; font-size: 0.8rem; }
+
+      /* Media slides: stack vertically */
+      .slide--with-media .slide__content {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .slide__media-text { order: 1; }
+      .slide__media { order: 2; width: 100%; }
+      .slide__media--dual { gap: 1rem; }
+
+      /* Typography: scale up for portrait base */
+      .slide__kicker { font-size: 0.8rem; }
+      .slide__title { font-size: 2.8rem; line-height: 1.15; }
+      .slide__lead { font-size: 1.5rem; line-height: 1.5; max-width: 48ch; }
+      .slide__subtitle { font-size: 1.8rem; max-width: 42ch; }
+      .slide__promise { font-size: 5.5rem; }
+
+      /* Media slide compact overrides */
+      .slide--with-media .slide__title { font-size: 2.2rem; }
+      .slide--with-media .slide__lead { font-size: 1.2rem; }
+      .slide--with-media .slide__kicker { font-size: 0.75rem; }
+      .slide--with-media .slide__problem { font-size: 0.95rem; padding: 0.7rem 1rem; }
+      .slide--with-media .slide__value { font-size: 0.95rem; padding: 0.7rem 1rem; }
+
+      /* Grids: fewer columns */
+      .slide__stats { grid-template-columns: repeat(2, 1fr); gap: 1.2rem; }
+      .slide__work-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .slide__compare { grid-template-columns: 1fr; gap: 1rem; }
+      .slide__cols { grid-template-columns: 1fr; gap: 1.5rem; }
+      .slide__module-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+      .slide__cards { flex-direction: column; gap: 0.8rem; }
+
+      /* Timeline: horizontal scroll or wrap */
+      .slide__timeline {
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+      .slide__timeline::before { display: none; }
+      .slide__tl-step { flex: 1 1 40%; flex-direction: row; align-items: center; gap: 0.6rem; }
+      .slide__tl-label { font-size: 0.85rem; }
+      .slide__tl-sub { font-size: 0.7rem; }
+
+      /* DNA center */
+      .slide__dna-center { flex-direction: row; padding: 1rem 1.5rem; }
+      .slide__dna-center-title { font-size: 1.1rem; }
+      .slide__dna-center-desc { font-size: 0.9rem; }
+
+      /* Stat values */
+      .slide__stat-value { font-size: 2rem; }
+      .slide__stat-label { font-size: 0.9rem; }
+
+      /* Module nodes */
+      .slide__module-node { padding: 1rem; }
+      .slide__module-node-title { font-size: 1rem; }
+      .slide__module-node-desc { font-size: 0.85rem; }
+
+      /* Work steps */
+      .slide__work-step { padding: 1.2rem; }
+      .slide__work-title { font-size: 1.1rem; }
+      .slide__work-body { font-size: 0.9rem; }
+
+      /* Compare */
+      .slide__compare-col { padding: 1.2rem; }
+      .slide__compare-title { font-size: 1.1rem; }
+      .slide__compare-list li { font-size: 0.9rem; }
+
+      /* Cols */
+      .slide__col-title { font-size: 1.1rem; }
+      .slide__col-list li { font-size: 0.9rem; }
+
+      /* Cards */
+      .slide__card { padding: 1rem 1.2rem; }
+      .slide__card-title { font-size: 1rem; }
+      .slide__card-body { font-size: 0.85rem; }
+
+      /* Table */
+      .slide__table th, .slide__table td { font-size: 0.85rem; padding: 0.7rem 0.8rem; }
+
+      /* Metrics */
+      .slide__metrics { flex-direction: column; gap: 1.2rem; }
+      .slide__metric-value { font-size: 1.3rem; }
+      .slide__metric-label { font-size: 1rem; }
+
+      /* Problem block */
+      .slide__problem { font-size: 1rem; padding: 0.8rem 1.2rem; }
+
+      /* Value block */
+      .slide__value { font-size: 1rem; padding: 0.8rem 1.2rem; }
+
+      /* Badges */
+      .slide__badge { font-size: 0.8rem; padding: 0.3rem 0.8rem; }
+
+      /* Chrome nav inside slides */
+      .deck__chrome { gap: 0.5rem; padding: 0.5rem 0.8rem; }
+      .deck__btn { min-width: 2.5rem; height: 2.5rem; font-size: 0.85rem; }
+      .deck__btn--icon { min-width: 2.5rem; }
+      .deck__btn svg { width: 1.2rem; height: 1.2rem; }
+      .deck__counter { min-width: 2.5rem; height: 2.5rem; font-size: 0.85rem; }
+    }
   </style>
 </head>
 <body>
@@ -1739,8 +1855,8 @@
       // ── Scale fixed-size deck to fit viewport ──
       const fit = document.querySelector('.deck__fit');
       function scaleDeck() {
-        const sx = window.innerWidth  / 1920;
-        const sy = window.innerHeight / 1080;
+        const portrait = window.innerHeight > window.innerWidth; const sx = window.innerWidth / (portrait ? 1080 : 1920);
+        const sy = window.innerHeight / (portrait ? 1920 : 1080);
         const s  = Math.min(sx, sy);
         fit.style.transform = 'scale(' + s + ')';
       }
