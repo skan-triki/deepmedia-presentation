@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr" data-lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DeepMedia, un environnement pour chaque histoire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+{{CSS}}
+</style>
+</head>
+<body>
+  <!-- ── SVG sprite ──────────────────────────────────────── -->
+  {{SVG}}
+<!-- ── Deck ────────────────────────────────────────────── -->
+  <div class="deck">
+    <div class="deck__fit">
+      <div class="deck__bg" aria-hidden="true">
+        <div class="deck__bg-blob deck__bg-blob--1"></div>
+        <div class="deck__bg-blob deck__bg-blob--2"></div>
+        <div class="deck__bg-blob deck__bg-blob--3"></div>
+        <div class="deck__bg-blob deck__bg-blob--4"></div>
+        <div class="deck__bg-blob deck__bg-blob--5"></div>
+      </div>
+      <div class="deck__slides" id="deck-slides">
+
+        {{SLIDES}}</div><!-- /deck__slides -->
+    </div><!-- /deck__fit -->
+  </div><!-- /deck -->
+
+  <script>
+{{JS}}
+</script>
+</body>
+</html>
