@@ -222,14 +222,20 @@
       const doc = viewer.contentDocument;
       if (!doc) return;
 
+      const win = viewer.contentWindow;
       const slides = doc.querySelectorAll('.slide');
       if (idx < 0) idx = 0;
       if (idx >= slides.length) idx = slides.length - 1;
 
-      slides.forEach((s, j) => {
-        s.classList.toggle('is-active', j === idx);
-        s.setAttribute('aria-hidden', j === idx ? 'false' : 'true');
-      });
+      // Use deck's own show() if available (handles mobile scroll)
+      if (win && win.__deckShow) {
+        win.__deckShow(idx);
+      } else {
+        slides.forEach((s, j) => {
+          s.classList.toggle('is-active', j === idx);
+          s.setAttribute('aria-hidden', j === idx ? 'false' : 'true');
+        });
+      }
 
       currentSlide = idx;
       counter.textContent = pad(currentSlide + 1) + ' / ' + pad(slideCount);
