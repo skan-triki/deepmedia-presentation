@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="fr" data-lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DeepMedia, un environnement pour chaque histoire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --dm-deck-bg: #0a0a0a;
+      --dm-slide-bg: #171717;
+      --dm-surface: #1e1e1e;
+      --dm-surface-elevated: #262626;
+      --dm-ink: #fafafa;
+      --dm-ink-secondary: #e5e5e5;
+      --dm-muted: #737373;
+      --dm-border: rgba(255,255,255,0.10);
+      --dm-border-subtle: rgba(255,255,255,0.06);
+      --dm-v-electric: #31cfff;
+      --dm-v-amber: #ffb92c;
+      --dm-v-mint: #2cffb9;
+      --dm-slide-ratio: 16 / 9;
+      --dm-slide-pad: 3.5rem;
+      --dm-slide-pad-mob: 1.25rem;
+      --dm-radius: 14px;
+      --dm-radius-sm: 10px;
+      --dm-radius-pill: 999px;
+    }
+
+    [data-theme="light"] {
+      --dm-deck-bg: #f5f5f5;
+      --dm-slide-bg: #fafafa;
+      --dm-surface: #ffffff;
+      --dm-surface-elevated: #f5f5f5;
+      --dm-ink: #0a0a0a;
+      --dm-ink-secondary: #404040;
+      --dm-muted: #737373;
+      --dm-border: #d4d4d4;
+      --dm-border-subtle: rgba(0,0,0,0.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--dm-deck-bg);
+      color: var(--dm-ink);
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .deck {
+      width: 100vw; height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    .deck__fit {
+      width: 1920px;
+      height: 1080px;
+      position: relative;
+      background: var(--dm-slide-bg);
+      border-radius: var(--dm-radius);
+      box-shadow: 0 28px 90px rgba(0,0,0,0.42);
+      overflow: hidden;
+      transform-origin: center center;
+    }
+    [data-theme="light"] .deck__fit { box-shadow: 0 28px 90px rgba(0,0,0,0.12); }
+    .deck__slides { position: relative; width: 100%; height: 100%; z-index: 1; }
+
+    /* ── Dynamic background ────────────────────────────── */
+    .deck__bg {
+      position: absolute; inset: 0;
+      pointer-events: none; z-index: 0;
+      overflow: hidden;
+      opacity: 0.45;
+      filter: blur(12px);
+    }
+    .deck__bg-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      will-change: transform;
+      mix-blend-mode: screen;
+    }
+    .deck__bg-blob--1 {
+      width: 68%; height: 75%;
+      top: -28%; left: -22%;
+      background: radial-gradient(circle, var(--dm-v-electric) 0%, transparent 78%);
+      opacity: 0.18;
+      animation: dm-blob-drift-1 22s ease-in-out infinite alternate;
+    }
+    .deck__bg-blob--2 {
+      width: 62%; height: 70%;
+      top: 18%; right: -24%;
+      background: radial-gradient(circle, var(--dm-v-mint) 0%, transparent 78%);
+      opacity: 0.15;
+      animation: dm-blob-drift-2 18s ease-in-out infinite alternate;
+    }
+    .deck__bg-blob--3 {
+      width: 58%; height: 68%;
+      bottom: -30%; left: 8%;
+      background: radial-gradient(circle, var(--dm-v-amber) 0%, transparent 78%);
+      opacity: 0.14;
+      animation: dm-blob-drift-3 26s ease-in-out infinite alternate;
+    }
+    .deck__bg-blob--4 {
+      width: 50%; height: 58%;
+      top: 45%; left: 55%;
+      background: radial-gradient(circle, var(--dm-v-electric) 0%, transparent 78%);
+      opacity: 0.12;
+      animation: dm-blob-drift-4 30s ease-in-out infinite alternate;
+    }
+    .deck__bg-blob--5 {
+      width: 44%; height: 52%;
+      top: 5%; left: 35%;
+      background: radial-gradient(circle, var(--dm-v-mint) 0%, transparent 78%);
+      opacity: 0.10;
+      animation: dm-blob-drift-5 20s ease-in-out infinite alternate;
+    }
+    @keyframes dm-blob-drift-1 {
+      from { transform: translate(0, 0) rotate(0deg) scale(1); }
+      to   { transform: translate(18%, 22%) rotate(12deg) scale(1.18); }
+    }
+    @keyframes dm-blob-drift-2 {
+      from { transform: translate(0, 0) rotate(0deg) scale(1); }
+      to   { transform: translate(-22%, -14%) rotate(-10deg) scale(1.14); }
+    }
+    @keyframes dm-blob-drift-3 {
+      from { transform: translate(0, 0) rotate(0deg) scale(1); }
+      to   { transform: translate(12%, -20%) rotate(8deg) scale(1.22); }
+    }
+    @keyframes dm-blob-drift-4 {
+      from { transform: translate(0, 0) rotate(0deg) scale(1); }
+      to   { transform: translate(-16%, 16%) rotate(-14deg) scale(1.12); }
+    }
+    @keyframes dm-blob-drift-5 {
+      from { transform: translate(0, 0) rotate(0deg) scale(1); }
+      to   { transform: translate(14%, -8%) rotate(16deg) scale(1.2); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .deck__bg-blob { animation: none; }
+    }
+    [data-theme="light"] .deck__bg { opacity: 0.30; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      padding: var(--dm-slide-pad);
+      opacity: 0; pointer-events: none;
+      transform: translateY(20px) scale(0.992);
+      filter: blur(6px);
+      transition: opacity 520ms cubic-bezier(0.22,1,0.36,1),
+                  transform 520ms cubic-bezier(0.22,1,0.36,1),
+                  filter 520ms cubic-bezier(0.22,1,0.36,1);
+    }
+    .slide.is-active {
+      opacity: 1; pointer-events: auto;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+      z-index: 1;
+    }
+
+    /* ── Staggered entrance ────────────────────────────── */
+    .slide.is-active .slide__kicker,
+    .slide.is-active .slide__title,
+    .slide.is-active .slide__lead,
+    .slide.is-active .slide__problem,
+    .slide.is-active .slide__timeline,
+    .slide.is-active .slide__cards,
+    .slide.is-active .slide__cols,
+    .slide.is-active .slide__compare,
+    .slide.is-active .slide__stats,
+    .slide.is-active .slide__value,
+    .slide.is-active .slide__work-grid,
+    .slide.is-active .slide__module-grid,
+    .slide.is-active .slide__dna-center,
+    .slide.is-active .slide__badges,
+    .slide.is-active .slide__media,
+    .slide.is-active .slide__subtitle {
+      animation: dm-fade-up 600ms cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .slide.is-active .slide__kicker      { animation-delay: 80ms; }
+    .slide.is-active .slide__title       { animation-delay: 160ms; }
+    .slide.is-active .slide__lead        { animation-delay: 220ms; }
+    .slide.is-active .slide__problem     { animation-delay: 280ms; }
+    .slide.is-active .slide__timeline    { animation-delay: 340ms; }
+    .slide.is-active .slide__cards       { animation-delay: 340ms; }
+    .slide.is-active .slide__cols        { animation-delay: 340ms; }
+    .slide.is-active .slide__compare     { animation-delay: 340ms; }
+    .slide.is-active .slide__stats       { animation-delay: 340ms; }
+    .slide.is-active .slide__work-grid   { animation-delay: 340ms; }
+    .slide.is-active .slide__module-grid { animation-delay: 340ms; }
+    .slide.is-active .slide__dna-center  { animation-delay: 400ms; }
+    .slide.is-active .slide__value       { animation-delay: 420ms; }
+    .slide.is-active .slide__badges      { animation-delay: 480ms; }
+    .slide.is-active .slide__media       { animation-delay: 300ms; }
+    .slide.is-active .slide__subtitle    { animation-delay: 380ms; }
+
+    @keyframes dm-fade-up {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Stagger children inside grids */
+    .slide.is-active .slide__card,
+    .slide.is-active .slide__module-node,
+    .slide.is-active .slide__stat,
+    .slide.is-active .slide__work-step,
+    .slide.is-active .slide__compare-col,
+    .slide.is-active .slide__tl-step {
+      animation: dm-fade-up 500ms cubic-bezier(0.22,1,0.36,1) both;
+    }
+    .slide.is-active .slide__card:nth-child(1),
+    .slide.is-active .slide__module-node:nth-child(1),
+    .slide.is-active .slide__stat:nth-child(1),
+    .slide.is-active .slide__work-step:nth-child(1),
+    .slide.is-active .slide__compare-col:nth-child(1),
+    .slide.is-active .slide__tl-step:nth-child(1) { animation-delay: 380ms; }
+    .slide.is-active .slide__card:nth-child(2),
+    .slide.is-active .slide__module-node:nth-child(2),
+    .slide.is-active .slide__stat:nth-child(2),
+    .slide.is-active .slide__work-step:nth-child(2),
+    .slide.is-active .slide__compare-col:nth-child(2),
+    .slide.is-active .slide__tl-step:nth-child(2) { animation-delay: 440ms; }
+    .slide.is-active .slide__card:nth-child(3),
+    .slide.is-active .slide__module-node:nth-child(3),
+    .slide.is-active .slide__stat:nth-child(3),
+    .slide.is-active .slide__work-step:nth-child(3),
+    .slide.is-active .slide__tl-step:nth-child(3) { animation-delay: 500ms; }
+    .slide.is-active .slide__card:nth-child(4),
+    .slide.is-active .slide__module-node:nth-child(4),
+    .slide.is-active .slide__tl-step:nth-child(4) { animation-delay: 560ms; }
+    .slide.is-active .slide__card:nth-child(5),
+    .slide.is-active .slide__tl-step:nth-child(5) { animation-delay: 620ms; }
+    .slide.is-active .slide__card:nth-child(6),
+    .slide.is-active .slide__tl-step:nth-child(6) { animation-delay: 680ms; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide, .slide.is-active * { animation: none !important; transition: opacity 200ms ease !important; filter: none !important; transform: none !important; }
+    }
+
+    /* Brand & chrome */
+    .slide__brand {
+      position: absolute; top: 1.75rem; left: 2rem;
+      display: flex; align-items: center; gap: 0.75rem; z-index: 10;
+    }
+    .slide__brand-logo { width: 8rem; height: auto; }
+    .slide__brand-label {
+      font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--dm-muted); padding: 0.2rem 0.6rem; border-radius: var(--dm-radius-pill);
+      background: var(--dm-surface-elevated); border: 1px solid var(--dm-border-subtle);
+    }
+    .slide__number {
+      position: absolute; top: 1.75rem; right: 2rem;
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-size: 0.62rem; letter-spacing: 0.12em; font-weight: 600;
+      color: var(--dm-muted); font-variant-numeric: tabular-nums; z-index: 2;
+      padding: 0.2rem 0.6rem; border-radius: var(--dm-radius-pill);
+      background: var(--dm-surface-elevated); border: 1px solid var(--dm-border-subtle);
+      transition: border-color 400ms ease, color 400ms ease;
+    }
+    .slide.is-active .slide__number {
+      border-color: rgba(49,207,255,0.3);
+      color: var(--dm-ink-secondary);
+    }
+    .slide__number-current { color: var(--dm-v-electric); font-weight: 700; }
+    .slide__number-sep { opacity: 0.4; }
+
+    .slide__content { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+    /* Typography */
+    .slide__kicker {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      width: fit-content;
+      font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--dm-v-amber); margin-bottom: 0.85rem; font-weight: 600;
+    }
+    .slide__kicker::before {
+      content: ""; display: inline-block; width: 0.45rem; height: 0.45rem; border-radius: 50%;
+      background: currentColor; box-shadow: 0 0 8px currentColor; opacity: 0.7;
+      animation: dm-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes dm-pulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50%      { opacity: 0.9; transform: scale(1.25); }
+    }
+    .slide__title {
+      font-size: clamp(1.8rem, 2.8vw, 3.2rem); line-height: 1.08; font-weight: 700;
+      letter-spacing: -0.03em; margin: 0 0 1rem;
+    }
+    .slide__promise {
+      font-size: clamp(2.2rem, 4vw, 4.8rem); line-height: 1.04; font-weight: 700;
+      letter-spacing: -0.035em; margin: 0;
+    }
+    .slide__promise-accent {
+      color: transparent;
+      background: linear-gradient(90deg, var(--dm-v-electric), var(--dm-v-mint));
+      -webkit-background-clip: text; background-clip: text;
+    }
+    .slide__subtitle {
+      font-size: 1.35rem; font-weight: 800; color: var(--dm-muted);
+      line-height: 1.55; max-width: 52ch; margin-top: 1rem;
+    }
+    .slide__lead {
+      font-size: clamp(1rem, 1.6vw, 1.45rem); line-height: 1.55;
+      max-width: 56ch; color: var(--dm-ink-secondary); margin-bottom: 1.25rem;
+    }
+
+    /* ── Cards ─────────────────────────────────────────── */
+    .slide__cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+    .slide__card {
+      position: relative;
+      background: linear-gradient(155deg, var(--dm-surface-elevated), var(--dm-surface));
+      border: 1px solid var(--dm-border-subtle);
+      border-radius: var(--dm-radius-sm);
+      padding: 1.1rem;
+      display: flex; flex-direction: column; gap: 0.5rem;
+      overflow: hidden;
+      transition: transform 300ms cubic-bezier(0.22,1,0.36,1),
+                  border-color 300ms ease, box-shadow 300ms ease;
+    }
+    .slide__card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(49,207,255,0.3);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+    }
+    .slide__card::before {
+      content: ""; position: absolute; top: 0; left: 0; width: 2.25rem; height: 2.25rem;
+      border-radius: 0 var(--dm-radius-sm) 0 var(--dm-radius-sm);
+      background: linear-gradient(135deg, var(--dm-v-electric), transparent 70%);
+      opacity: 0.12;
+    }
+    .slide__card--electric::before { background: linear-gradient(135deg, var(--dm-v-electric), transparent 70%); }
+    .slide__card--amber::before   { background: linear-gradient(135deg, var(--dm-v-amber), transparent 70%); }
+    .slide__card--mint::before    { background: linear-gradient(135deg, var(--dm-v-mint), transparent 70%); }
+    .slide__card::after {
+      content: ""; position: absolute; bottom: 0; left: 1.1rem; right: 1.1rem; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--dm-v-electric), transparent); opacity: 0.3;
+    }
+    .slide__card--electric::after { background: linear-gradient(90deg, transparent, var(--dm-v-electric), transparent); }
+    .slide__card--amber::after   { background: linear-gradient(90deg, transparent, var(--dm-v-amber), transparent); }
+    .slide__card--mint::after    { background: linear-gradient(90deg, transparent, var(--dm-v-mint), transparent); }
+    .slide__card-icon { color: var(--dm-v-electric); width: 1.35rem; height: 1.35rem; }
+    .slide__card--electric .slide__card-icon { color: var(--dm-v-electric); }
+    .slide__card--amber   .slide__card-icon { color: var(--dm-v-amber); }
+    .slide__card--mint    .slide__card-icon { color: var(--dm-v-mint); }
+    .slide__card-title { font-weight: 700; font-size: 0.9rem; margin: 0; color: var(--dm-ink); }
+    .slide__card-body  { font-size: 0.8rem; color: var(--dm-muted); line-height: 1.45; margin: 0; }
+
+    /* ── Stats ─────────────────────────────────────────── */
+    .slide__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.75rem; }
+    .slide__stat {
+      text-align: center; padding: 1.1rem 1rem; border-radius: var(--dm-radius-sm);
+      background: linear-gradient(160deg, var(--dm-surface-elevated), var(--dm-surface));
+      border: 1px solid var(--dm-border-subtle);
+      transition: transform 300ms cubic-bezier(0.22,1,0.36,1), border-color 300ms ease, box-shadow 300ms ease;
+      position: relative; overflow: hidden;
+    }
+    .slide__stat:hover { transform: translateY(-2px); border-color: rgba(49,207,255,0.25); box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+    .slide__stat::before {
+      content: ""; position: absolute; top: 0; left: 0; width: 2.25rem; height: 2.25rem;
+      border-radius: 0 var(--dm-radius-sm) 0 var(--dm-radius-sm);
+      background: linear-gradient(135deg, var(--dm-v-electric), transparent 70%);
+      opacity: 0.10;
+    }
+    .slide__stat-value { font-size: clamp(1.5rem, 2.4vw, 2.4rem); font-weight: 700; color: var(--dm-v-electric); }
+    .slide__stat-label { font-size: 0.78rem; color: var(--dm-muted); margin-top: 0.3rem; line-height: 1.3; }
+
+    /* ── Metrics ───────────────────────────────────────── */
+    .slide__metrics { display: flex; gap: 2rem; margin-top: 2rem; }
+    .slide__metric { display: flex; flex-direction: column; gap: 0.5rem; }
+    .slide__metric-value { font-size: 1.05rem; font-weight: 700; color: var(--dm-ink); }
+    .slide__metric-label { font-size: 1rem; font-weight: 700; color: var(--dm-muted); max-width: 24ch; line-height: 1.4; }
+
+    /* ── Work steps ────────────────────────────────────── */
+    .slide__work-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 1.25rem; }
+    .slide__work-step {
+      position: relative; padding: 1.1rem;
+      background: linear-gradient(160deg, var(--dm-surface-elevated), var(--dm-surface));
+      border-radius: var(--dm-radius-sm); border: 1px solid var(--dm-border-subtle);
+      transition: transform 300ms cubic-bezier(0.22,1,0.36,1), border-color 300ms ease, box-shadow 300ms ease;
+      overflow: hidden;
+    }
+    .slide__work-step::before {
+      content: ""; position: absolute; top: 0; left: 0; width: 2.25rem; height: 2.25rem;
+      border-radius: 0 var(--dm-radius-sm) 0 var(--dm-radius-sm);
+      background: linear-gradient(135deg, var(--dm-v-electric), transparent 70%);
+      opacity: 0.10;
+    }
+    .slide__work-step:hover {
+      transform: translateY(-3px); border-color: rgba(49,207,255,0.25);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.22);
+    }
+    .slide__work-step::after { content: ""; position: absolute; right: -1rem; top: 50%; transform: translateY(-50%); width: 0.65rem; height: 0.65rem; background: var(--dm-v-electric); clip-path: polygon(0 0, 100% 50%, 0 100%); opacity: 0.8; }
+    .slide__work-step:last-child::after { content: none; }
+    .slide__step-num { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dm-v-electric); margin-bottom: 0.45rem; font-weight: 600; }
+    .slide__work-title { font-weight: 700; margin: 0 0 0.4rem; color: var(--dm-ink); font-size: 0.9rem; }
+    .slide__work-body  { font-size: 0.8rem; color: var(--dm-muted); line-height: 1.45; }
+
+    /* ── Compare ───────────────────────────────────────── */
+    .slide__compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.25rem; }
+    .slide__compare-col {
+      padding: 1.2rem; border-radius: var(--dm-radius-sm);
+      border: 1px solid var(--dm-border-subtle); background: linear-gradient(160deg, var(--dm-surface-elevated), var(--dm-surface));
+      transition: transform 300ms cubic-bezier(0.22,1,0.36,1), border-color 300ms ease, box-shadow 300ms ease;
+      position: relative; overflow: hidden;
+    }
+    .slide__compare-col:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+    .slide__compare-col--problem { border-color: rgba(255,185,44,0.22); background: linear-gradient(180deg, rgba(255,185,44,0.05), var(--dm-surface) 50%); }
+    .slide__compare-col--electric { border-color: rgba(49,207,255,0.22); background: linear-gradient(180deg, rgba(49,207,255,0.05), var(--dm-surface) 50%); }
+    .slide__compare-col--solution { border-color: rgba(44,255,185,0.22); background: linear-gradient(180deg, rgba(44,255,185,0.05), var(--dm-surface) 50%); }
+    .slide__compare-col--problem  .slide__compare-title { color: var(--dm-v-amber); }
+    .slide__compare-col--electric .slide__compare-title { color: var(--dm-v-electric); }
+    .slide__compare-col--solution .slide__compare-title { color: var(--dm-v-mint); }
+    .slide__compare-icon { width: 1.35rem; height: 1.35rem; color: currentColor; margin-bottom: 0.5rem; }
+    .slide__compare-col--problem  .slide__compare-icon { color: var(--dm-v-amber); }
+    .slide__compare-col--electric .slide__compare-icon { color: var(--dm-v-electric); }
+    .slide__compare-col--solution .slide__compare-icon { color: var(--dm-v-mint); }
+    .slide__compare-title { font-weight: 700; margin: 0 0 0.65rem; font-size: 1rem; }
+    .slide__compare-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+    .slide__compare-list li { font-size: 0.85rem; color: var(--dm-muted); line-height: 1.45; display: flex; gap: 0.5rem; align-items: flex-start; }
+    .slide__compare-list li::before { content: ""; width: 0.4rem; height: 0.4rem; border-radius: 50%; background: var(--dm-v-amber); opacity: 0.6; flex-shrink: 0; margin-top: 0.35rem; }
+    .slide__compare-col--solution .slide__compare-list li { position: relative; }
+    .slide__compare-col--solution .slide__compare-list li::before { content: ""; width: 0.85rem; height: 0.85rem; border-radius: 50%; background: rgba(44,255,185,0.15); border: 1.5px solid var(--dm-v-mint); margin-top: 0.15rem; flex-shrink: 0; }
+    .slide__compare-col--solution .slide__compare-list li::after { content: ""; position: absolute; left: 0.33rem; top: 0.27rem; width: 0.2rem; height: 0.38rem; border: solid var(--dm-v-mint); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg); }
+
+    /* ── Cols ──────────────────────────────────────────── */
+    .slide__cols { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; margin-top: 0.75rem; }
+    .slide__col-title {
+      font-size: 0.92rem; font-weight: 700; margin: 1rem 0 0.6rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .slide__col-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
+    .slide__col-list li { display: flex; align-items: flex-start; gap: 0.5rem; font-size: 0.86rem; color: var(--dm-muted); line-height: 1.45; }
+    .slide__col-list .icon { color: var(--dm-v-electric); flex: none; margin-top: 0.1rem; }
+
+    /* ── Badges ────────────────────────────────────────── */
+    .slide__badges { display: flex; gap: 0.45rem; margin-top: 1rem; flex-wrap: wrap; }
+    .slide__badge {
+      display: inline-flex; align-items: center; justify-content: center; text-align: center; gap: 0.4rem; padding: 0.5rem 1.2rem;
+      border-radius: var(--dm-radius-pill); font-size: 1.05rem; font-weight: 700;
+      background: transparent; border: 1px solid var(--dm-border); color: var(--dm-ink);
+      transition: transform 250ms cubic-bezier(0.22,1,0.36,1), background 250ms ease;
+    }
+    .slide__badge:hover { transform: translateY(-1px); background: rgba(255,255,255,0.04); }
+    [data-theme="light"] .slide__badge:hover { background: rgba(0,0,0,0.04); }
+    [data-theme="light"] .slide__card:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.10); }
+    [data-theme="light"] .slide__work-step:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.10); }
+    [data-theme="light"] .slide__module-node:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+    [data-theme="light"] .slide__stat:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+    [data-theme="light"] .slide__compare-col:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+    [data-theme="light"] .slide__media img { box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+    [data-theme="light"] .slide__media:hover img { box-shadow: 0 16px 50px rgba(0,0,0,0.15); }
+    .slide__badge--amber    { border-color: var(--dm-v-amber);    color: var(--dm-v-amber); }
+    .slide__badge--electric { border-color: var(--dm-v-electric); color: var(--dm-v-electric); }
+    .slide__badge--mint     { border-color: var(--dm-v-mint);     color: var(--dm-v-mint); }
+
+    /* ── TABLE ─────────────────────────────────────────── */
+    .slide__table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 1rem; font-size: 0.88rem; border: 1px solid var(--dm-border-subtle); border-radius: var(--dm-radius-sm); overflow: hidden; }
+    .slide__table th, .slide__table td { padding: 0.65rem 0.9rem; text-align: left; border-bottom: 1px solid var(--dm-border-subtle); }
+    .slide__table th { color: var(--dm-muted); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.07em; text-transform: uppercase; background: var(--dm-surface-elevated); }
+    .slide__table tr:last-child td { border-bottom: none; }
+    .slide__table td { color: var(--dm-ink-secondary); }
+    .slide__table .mark { color: var(--dm-v-electric); font-weight: 700; }
+    .slide__table .mark.is-off { color: var(--dm-muted); opacity: 0.3; }
+
+    /* ── NEW: Timeline ─────────────────────────────────── */
+    .slide__timeline {
+      display: flex;
+      align-items: flex-start;
+      margin-top: 1rem;
+      position: relative;
+    }
+    .slide__timeline::before {
+      content: "";
+      position: absolute;
+      top: 0.72rem;
+      left: 1.5rem;
+      right: 1.5rem;
+      height: 2px;
+      background: linear-gradient(90deg, var(--dm-v-electric) 0%, var(--dm-v-mint) 50%, var(--dm-v-amber) 100%);
+      opacity: 0.2;
+      transform-origin: left center;
+      transform: scaleX(0);
+    }
+    .slide.is-active .slide__timeline::before {
+      animation: dm-timeline-draw 900ms cubic-bezier(0.22,1,0.36,1) 300ms both;
+    }
+    @keyframes dm-timeline-draw {
+      from { transform: scaleX(0); opacity: 0; }
+      40%  { opacity: 0.2; }
+      to   { transform: scaleX(1); opacity: 0.2; }
+    }
+    .slide__tl-step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      text-align: center;
+      padding: 0 0.2rem;
+    }
+    .slide__tl-dot {
+      width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 50%;
+      background: var(--dm-v-electric);
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.58rem;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 4px rgba(49,207,255,0.18);
+      transition: box-shadow 400ms ease, transform 300ms cubic-bezier(0.22,1,0.36,1);
+    }
+    .slide__tl-step:hover .slide__tl-dot {
+      transform: scale(1.15);
+      box-shadow: 0 0 0 6px rgba(49,207,255,0.22), 0 0 14px rgba(49,207,255,0.3);
+    }
+    .slide__tl-step:hover .slide__tl-dot--electric { box-shadow: 0 0 0 6px rgba(49,207,255,0.22), 0 0 14px rgba(49,207,255,0.3); }
+    .slide__tl-step:hover .slide__tl-dot--amber    { box-shadow: 0 0 0 6px rgba(255,185,44,0.22), 0 0 14px rgba(255,185,44,0.3); }
+    .slide__tl-step:hover .slide__tl-dot--mint     { box-shadow: 0 0 0 6px rgba(44,255,185,0.22), 0 0 14px rgba(44,255,185,0.3); }
+    .slide__tl-dot--electric { background: var(--dm-v-electric); box-shadow: 0 0 0 4px rgba(49,207,255,0.18); color: #000; }
+    .slide__tl-dot--amber    { background: var(--dm-v-amber);    box-shadow: 0 0 0 4px rgba(255,185,44,0.18);  color: #000; }
+    .slide__tl-dot--mint     { background: var(--dm-v-mint);     box-shadow: 0 0 0 4px rgba(44,255,185,0.18); color: #000; }
+    .slide__tl-label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--dm-ink);
+      margin-top: 0.55rem;
+      line-height: 1.3;
+      max-width: 9ch;
+      margin-inline: auto;
+    }
+    .slide__tl-sub {
+      font-size: 0.65rem;
+      color: var(--dm-muted);
+      margin-top: 0.15rem;
+      line-height: 1.3;
+      max-width: 10ch;
+      margin-inline: auto;
+    }
+
+    /* ── NEW: Problem banner ───────────────────────────── */
+    .slide__problem {
+      display: flex;
+      align-items: baseline;
+      gap: 0.65rem;
+      padding: 0.7rem 1rem 0.7rem 0.9rem;
+      border-radius: var(--dm-radius-sm);
+      background: linear-gradient(90deg, rgba(255,185,44,0.09), rgba(255,185,44,0.01) 65%);
+      border: 1px solid rgba(255,185,44,0.15);
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      color: var(--dm-ink-secondary);
+      line-height: 1.55;
+      position: relative;
+    }
+    .slide__problem::before {
+      content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 60%; border-radius: var(--dm-radius-pill); background: var(--dm-v-amber);
+    }
+    .slide__problem-tag {
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--dm-v-amber);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── NEW: Value banner ─────────────────────────────── */
+    .slide__value {
+      display: flex;
+      align-items: baseline;
+      gap: 0.65rem;
+      padding: 0.7rem 1rem 0.7rem 0.9rem;
+      border-radius: var(--dm-radius-sm);
+      background: linear-gradient(90deg, rgba(44,255,185,0.09), rgba(44,255,185,0.01) 65%);
+      border: 1px solid rgba(44,255,185,0.15);
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--dm-ink-secondary);
+      line-height: 1.55;
+      position: relative;
+    }
+    .slide__value::before {
+      content: ""; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 60%; border-radius: var(--dm-radius-pill); background: var(--dm-v-mint);
+    }
+    .slide__value-tag {
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--dm-v-mint);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ── NEW: Module grid (overview slide) ─────────────── */
+    .slide__module-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+    .slide__module-node {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.9rem 1rem;
+      background: linear-gradient(160deg, var(--dm-surface-elevated), var(--dm-surface));
+      border: 1px solid var(--dm-border-subtle);
+      border-radius: var(--dm-radius-sm);
+      position: relative;
+      overflow: hidden;
+      transition: transform 300ms cubic-bezier(0.22,1,0.36,1), border-color 300ms ease, box-shadow 300ms ease;
+    }
+    .slide__module-node:hover {
+      transform: translateY(-2px);
+      border-color: rgba(49,207,255,0.25);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+    .slide__module-node::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 2.25rem; height: 2.25rem;
+      border-radius: 0 var(--dm-radius-sm) 0 var(--dm-radius-sm);
+      background: linear-gradient(135deg, var(--dm-v-electric), transparent 70%);
+      opacity: 0.12;
+    }
+    .slide__module-node--electric::before { background: linear-gradient(135deg, var(--dm-v-electric), transparent 70%); }
+    .slide__module-node--amber::before    { background: linear-gradient(135deg, var(--dm-v-amber), transparent 70%); }
+    .slide__module-node--mint::before     { background: linear-gradient(135deg, var(--dm-v-mint), transparent 70%); }
+    .slide__module-node-icon { color: var(--dm-v-electric); flex-shrink: 0; width: 1.2rem; height: 1.2rem; margin-top: 0.05rem; }
+    .slide__module-node--electric .slide__module-node-icon { color: var(--dm-v-electric); }
+    .slide__module-node--amber    .slide__module-node-icon { color: var(--dm-v-amber); }
+    .slide__module-node--mint     .slide__module-node-icon { color: var(--dm-v-mint); }
+    .slide__module-node-body { display: flex; flex-direction: column; gap: 0.2rem; }
+    .slide__module-node-name { font-size: 0.9rem; font-weight: 700; color: var(--dm-ink); }
+    .slide__module-node-desc { font-size: 0.75rem; color: var(--dm-muted); line-height: 1.4; }
+
+    /* ── NEW: DNA center block ─────────────────────────── */
+    .slide__dna-center {
+      margin-top: 0.65rem;
+      padding: 0.85rem 1.2rem;
+      background: linear-gradient(135deg, rgba(49,207,255,0.08), rgba(49,207,255,0.02) 70%);
+      border: 1px solid rgba(49,207,255,0.22);
+      border-radius: var(--dm-radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .slide__dna-center-icon { color: var(--dm-v-electric); width: 1.5rem; height: 1.5rem; flex-shrink: 0; }
+    .slide__dna-center-title { font-weight: 700; font-size: 0.92rem; color: var(--dm-ink); }
+    .slide__dna-center-desc  { font-size: 0.78rem; color: var(--dm-muted); line-height: 1.4; }
+
+    /* ── Footer & chrome ───────────────────────────────── */
+    .slide__footer { position: absolute; bottom: 1.75rem; left: 2rem; right: 2rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: var(--dm-muted); z-index: 2; }
+    .slide__footer > span { display: inline-flex; align-items: center; justify-content: center; padding: 0.3rem 0.75rem; border-radius: var(--dm-radius-pill); border: 1px solid var(--dm-border); background: var(--dm-surface); font-weight: 600; }
+    .slide__footer-right { display: flex; gap: 1.25rem; align-items: center; }
+
+    /* ── Chrome bar ────────────────────────────────────── */
+    .deck__chrome {
+      position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+      display: flex; align-items: center; gap: 0.35rem;
+      background: rgba(10,10,10,0.85); backdrop-filter: blur(10px);
+      border: 1px solid var(--dm-border-subtle); border-radius: var(--dm-radius-pill);
+      padding: 0.45rem 0.75rem; z-index: 100;
+    }
+    [data-theme="light"] .deck__chrome { background: rgba(255,255,255,0.9); }
+    .deck__counter { font-variant-numeric: tabular-nums; font-size: 0.78rem; color: var(--dm-muted); margin: 0 0.4rem; }
+    .deck__btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 2.1rem; height: 2.1rem; padding: 0 0.6rem;
+      border: 1px solid var(--dm-border-subtle); border-radius: var(--dm-radius-pill);
+      background: var(--dm-surface); color: var(--dm-ink);
+      font-family: inherit; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer;
+      transition: background 220ms cubic-bezier(0.22,1,0.36,1),
+                  border-color 220ms ease, color 220ms ease,
+                  transform 220ms cubic-bezier(0.22,1,0.36,1);
+    }
+    .deck__btn:hover {
+      background: var(--dm-surface-elevated); border-color: var(--dm-border);
+      transform: scale(1.06);
+    }
+    .deck__btn:active { transform: scale(0.96); }
+    .deck__btn[aria-pressed="true"] { background: var(--dm-v-electric); border-color: var(--dm-v-electric); color: #fff; }
+    .deck__btn--icon { min-width: 2.1rem; padding: 0; }
+    .deck__btn svg { display: block; width: 1rem; height: 1rem; }
+
+    /* ── Slide modifiers ───────────────────────────────── */
+    .slide--center { text-align: center; align-items: center; }
+    .slide--center .slide__content { align-items: center; }
+    .slide--center .slide__title, .slide--center .slide__promise, .slide--center .slide__subtitle { text-align: center; }
+    .slide--center .slide__promise { max-width: 18ch; }
+    .slide--accent {
+      background:
+        radial-gradient(circle at 88% 8%, rgba(49,207,255,0.14), transparent 48%),
+        radial-gradient(circle at 12% 92%, rgba(49,207,255,0.09), transparent 42%),
+        radial-gradient(circle at 50% 50%, rgba(44,255,185,0.05), transparent 55%),
+        var(--dm-slide-bg);
+    }
+
+    /* ── DNA center subtle glow ────────────────────────── */
+    .slide__dna-center {
+      transition: border-color 400ms ease, box-shadow 400ms ease;
+    }
+    .slide__dna-center:hover {
+      border-color: rgba(49,207,255,0.45);
+      box-shadow: 0 0 24px rgba(49,207,255,0.12);
+    }
+
+    .icon { width: 1.2rem; height: 1.2rem; display: inline-block; vertical-align: middle; }
+
+    [data-theme="light"] .slide__brand-logo { filter: invert(1) hue-rotate(180deg) brightness(1.15); }
+    [data-lang="fr"] [data-i18n="en"],
+    [data-lang="en"] [data-i18n="fr"] { display: none !important; }
+
+    /* ── Media (product screenshots) ──────────────────── */
+    .slide--with-media .slide__content {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 1.75rem;
+      align-items: center;
+    }
+    .slide__media-text {
+      display: flex; flex-direction: column; justify-content: center; min-width: 0;
+    }
+    .slide__media {
+      width: 100%; display: flex; align-items: center; justify-content: center;
+    }
+    .slide__media img {
+      width: 100%; height: auto; display: block;
+      border-radius: var(--dm-radius-sm);
+      border: 1px solid var(--dm-border-subtle);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+      transition: transform 600ms cubic-bezier(0.22,1,0.36,1), box-shadow 600ms ease;
+    }
+    .slide__media:hover img {
+      transform: scale(1.015);
+      box-shadow: 0 16px 50px rgba(0,0,0,0.4);
+    }
+    .slide.slide--screenshot { padding: 0; background: var(--dm-slide-bg); }
+    .slide--screenshot .slide__content { width: 100%; height: 100%; }
+    .slide--screenshot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .slide__media--dual {
+      flex-direction: column; gap: 0.75rem;
+    }
+    .slide__media--dual img {
+      width: 100%; height: auto;
+    }
+    /* Compact typography for media slides */
+    .slide--with-media .slide__title  { font-size: clamp(1.3rem, 2vw, 2.2rem); margin-bottom: 0.6rem; }
+    .slide--with-media .slide__lead   { font-size: clamp(0.82rem, 1.05vw, 1rem); margin-bottom: 0.85rem; line-height: 1.5; }
+    .slide--with-media .slide__problem { font-size: 0.76rem; padding: 0.5rem 0.8rem; margin-bottom: 0.75rem; line-height: 1.45; }
+    .slide--with-media .slide__value   { font-size: 0.76rem; padding: 0.5rem 0.8rem; margin-top: 0.75rem; line-height: 1.45; }
+    .slide--with-media .slide__kicker  { margin-bottom: 0.6rem; font-size: 0.62rem; }
+    .slide--with-media .slide__timeline { margin-top: 0.6rem; }
+    .slide--with-media .slide__tl-label { font-size: 0.66rem; }
+    .slide--with-media .slide__tl-sub   { font-size: 0.56rem; }
+    .slide--with-media .slide__tl-dot   { width: 1.15rem; height: 1.15rem; font-size: 0.5rem; }
+    .slide--with-media .slide__cards    { gap: 0.5rem; margin-top: 0.5rem; }
+    .slide--with-media .slide__card     { padding: 0.65rem 0.75rem; gap: 0.35rem; }
+    .slide--with-media .slide__card-title { font-size: 0.82rem; }
+    .slide--with-media .slide__card-body  { font-size: 0.72rem; line-height: 1.35; }
+    .slide--with-media .slide__cols      { gap: 1rem; margin-top: 0.5rem; }
+    .slide--with-media .slide__col-title { font-size: 0.8rem; margin: 0.6rem 0 0.4rem; }
+    .slide--with-media .slide__col-list li { font-size: 0.76rem; }
+    .slide--with-media .slide__compare   { gap: 0.85rem; margin-top: 0.6rem; }
+    .slide--with-media .slide__compare-col { padding: 0.75rem; }
+    .slide--with-media .slide__compare-list li { font-size: 0.76rem; }
+    .slide--with-media .slide__subtitle  { font-size: 1.05rem; }
+  </style>
+</head>
+<body>
+  <!-- ── SVG sprite ──────────────────────────────────────── -->
+  <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-activity"      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a2 2 0 0 1-3.86 0l-2.12-7.5a2 2 0 0 0-3.84 0L3.91 17.6A2 2 0 0 1 2 16V2"/></symbol>
+    <symbol id="i-layers"        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></symbol>
+    <symbol id="i-shield"        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+    <symbol id="i-eye"           viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-search"        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></symbol>
+    <symbol id="i-file-text"     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></symbol>
+    <symbol id="i-pen-tool"      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2 9.586 9.586"/><circle cx="11" cy="11" r="2"/></symbol>
+    <symbol id="i-monitor-play"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polygon points="10 9 15 12 10 15 10 9"/></symbol>
+    <symbol id="i-map"           viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></symbol>
+    <symbol id="i-anchor"        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><line x1="12" y1="22" x2="12" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/></symbol>
+    <symbol id="i-lock"          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-cpu"           viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></symbol>
+    <symbol id="i-smartphone"    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></symbol>
+    <symbol id="i-share"         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></symbol>
+    <symbol id="i-disc"          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-alert-triangle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="i-zap"           viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+    <symbol id="i-users"         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-globe"         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+    <symbol id="i-trending-up"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></symbol>
+    <symbol id="i-arrow-right"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="i-arrow-left"    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></symbol>
+    <symbol id="i-moon"          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></symbol>
+    <symbol id="i-sun"           viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+    <symbol id="i-maximize"      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
+    <symbol id="i-check-circle"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+    <symbol id="i-clock"         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-film"          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></symbol>
+    <symbol id="i-edit"          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></symbol>
+    <symbol id="i-credit-card"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></symbol>
+    <symbol id="i-building"      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+    <symbol id="i-user"          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+  </svg>
+
+  <!-- ── Deck ────────────────────────────────────────────── -->
+  <div class="deck">
+    <div class="deck__fit">
+      <div class="deck__bg" aria-hidden="true">
+        <div class="deck__bg-blob deck__bg-blob--1"></div>
+        <div class="deck__bg-blob deck__bg-blob--2"></div>
+        <div class="deck__bg-blob deck__bg-blob--3"></div>
+        <div class="deck__bg-blob deck__bg-blob--4"></div>
+        <div class="deck__bg-blob deck__bg-blob--5"></div>
+      </div>
+      <div class="deck__slides" id="deck-slides">
+
+        <!-- ═══════════════════════════════════════════════════
+             01 — HERO
+        ════════════════════════════════════════════════════ -->
+        <section class="slide slide--center is-active" data-slide="1" aria-label="DeepMedia — introduction">
+          <div class="slide__brand">
+            <img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" />
+          </div>
+          <span class="slide__number">01 / 22</span>
+          <div class="slide__content">
+            <p class="slide__kicker">Media, Corporate, Institutions</p>
+            <h1 class="slide__promise">
+              <span>Un environnement</span><br/>
+              <span class="slide__promise-accent">pour chaque</span><br/>
+              <span>histoire.</span>
+            </h1>
+            <p class="slide__subtitle">De la veille à la publication, DeepMedia réunit tous vos outils en une seule plateforme, et respecte votre identité à chaque étape.</p>
+            <div class="slide__metrics" style="justify-content:center;">
+              <div class="slide__metric">
+                <span class="slide__badge slide__badge--electric">1 workspace</span>
+                <span class="slide__metric-label">Du brief à la diffusion</span>
+              </div>
+              <div class="slide__metric">
+                <span class="slide__badge slide__badge--amber">Cohérence</span>
+                <span class="slide__metric-label">Votre charte respectée à chaque génération</span>
+              </div>
+              <div class="slide__metric">
+                <span class="slide__badge slide__badge--mint">Contrôle</span>
+                <span class="slide__metric-label">Chaque décision éditoriale reste visible, tout est cadré, l'humain valide.</span>
+              </div>
+            </div>
+          </div>
+          <div class="slide__footer"></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             02 — LE PROBLÈME
+        ════════════════════════════════════════════════════ -->
+        <section class="slide" data-slide="2" aria-label="Le problème du marché">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">02 / 22</span>
+          <div class="slide__content">
+            <p class="slide__kicker">Le quotidien des rédactions</p>
+            <h2 class="slide__title">Nombreux outils. Multiples allers-retours. Un seul contenu.</h2>
+            <p class="slide__lead">Les rédactions jonglent avec des dizaines d'abonnements déconnectés qui oublient votre voix, gaspillent du temps et font grimper les coûts.</p>
+            <div class="slide__cards" style="grid-template-columns: repeat(3, 1fr);">
+              <div class="slide__card slide__card--amber">
+                <svg class="slide__card-icon"><use href="#i-alert-triangle"/></svg>
+                <h3 class="slide__card-title">Licences empilées</h3>
+                <p class="slide__card-body">5 à 10 abonnements distincts qui ne communiquent pas entre eux.</p>
+              </div>
+              <div class="slide__card slide__card--amber">
+                <svg class="slide__card-icon"><use href="#i-alert-triangle"/></svg>
+                <h3 class="slide__card-title">IA sans identité</h3>
+                <p class="slide__card-body">Des assistants génériques qui ignorent votre charte et votre ton.</p>
+              </div>
+              <div class="slide__card slide__card--amber">
+                <svg class="slide__card-icon"><use href="#i-alert-triangle"/></svg>
+                <h3 class="slide__card-title">Temps perdu</h3>
+                <p class="slide__card-body">Des heures à reformater, copier-coller, et réconcilier les versions.</p>
+              </div>
+              <div class="slide__card slide__card--amber">
+                <svg class="slide__card-icon"><use href="#i-alert-triangle"/></svg>
+                <h3 class="slide__card-title">Coûts cachés</h3>
+                <p class="slide__card-body">Licences, freelances et corrections qui s'accumulent sans contrôle.</p>
+              </div>
+              <div class="slide__card slide__card--amber">
+                <svg class="slide__card-icon"><use href="#i-alert-triangle"/></svg>
+                <h3 class="slide__card-title">Ton incohérent</h3>
+                <p class="slide__card-body">Chaque outil repart de zéro et oublie vos valeurs et votre voix.</p>
+              </div>
+              <div class="slide__card slide__card--amber">
+                <svg class="slide__card-icon"><use href="#i-alert-triangle"/></svg>
+                <h3 class="slide__card-title">Crédibilité fragilisée</h3>
+                <p class="slide__card-body">Le public ne distingue plus votre voix d'un contenu générique.</p>
+              </div>
+            </div>
+          </div>
+          <div class="slide__footer"><span>02 · Le problème</span><span class="slide__footer-right">Source : retours clients</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             03 — LA SOLUTION
+        ════════════════════════════════════════════════════ -->
+        <section class="slide slide--accent" data-slide="3" aria-label="La solution DeepMedia">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">03 / 22</span>
+          <div class="slide__content">
+            <p class="slide__kicker">La réponse</p>
+            <h2 class="slide__title">Un système qui enregistre votre identité et s'y conforme</h2>
+            <p class="slide__lead">DeepMedia n'est pas un outil de plus. C'est la plateforme qui réunit, encadre et apprend, pour que chaque contenu publié soit vraiment le vôtre.</p>
+            <div class="slide__cards">
+              <div class="slide__card slide__card--electric">
+                <svg class="slide__card-icon"><use href="#i-disc"/></svg>
+                <h3 class="slide__card-title">Identité intégrée</h3>
+                <p class="slide__card-body">Votre charte et votre voix guident chaque génération, automatiquement.</p>
+              </div>
+              <div class="slide__card slide__card--amber">
+                <svg class="slide__card-icon"><use href="#i-shield"/></svg>
+                <h3 class="slide__card-title">IA encadrée</h3>
+                <p class="slide__card-body">Les meilleurs moteurs du marché, guidés pas nos 2 modèles d'inférence maison.</p>
+              </div>
+              <div class="slide__card slide__card--mint">
+                <svg class="slide__card-icon"><use href="#i-activity"/></svg>
+                <h3 class="slide__card-title">Workflow guidé</h3>
+                <p class="slide__card-body">Chaque étape est claire, tracée et reproductible.</p>
+              </div>
+              <div class="slide__card">
+                <svg class="slide__card-icon"><use href="#i-layers"/></svg>
+                <h3 class="slide__card-title">1 seule licence</h3>
+                <p class="slide__card-body">Tous les modules réunis. Zéro export intermédiaire, zéro abonnement caché.</p>
+              </div>
+            </div>
+          </div>
+          <div class="slide__footer"><span>03 · La solution</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             04 — LES MODULES EN UN COUP D'ŒIL
+        ════════════════════════════════════════════════════ -->
+        <section class="slide" data-slide="4" aria-label="L'écosystème des modules">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">04 / 22</span>
+          <div class="slide__content">
+            <p class="slide__kicker">Modules</p>
+            <h2 class="slide__title">De la veille à la publication, tout en un</h2>
+            <p class="slide__lead" style="margin-bottom:0.5rem;">Six modules couvrent l'intégralité du cycle de production, avec votre identité éditoriale au centre.</p>
+            <div class="slide__module-grid">
+              <div class="slide__module-node">
+                <svg class="slide__module-node-icon"><use href="#i-search"/></svg>
+                <div class="slide__module-node-body">
+                  <p class="slide__module-node-name">Veille & Sources</p>
+                  <p class="slide__module-node-desc">Curation de contenu multilingue sur plus de 500 feeds</p>
+                </div>
+              </div>
+              <div class="slide__module-node slide__module-node--electric">
+                <svg class="slide__module-node-icon"><use href="#i-pen-tool"/></svg>
+                <div class="slide__module-node-body">
+                  <p class="slide__module-node-name">Story & Rédaction</p>
+                  <p class="slide__module-node-desc">Écrire, composer et publier tout type de contenu dans le respect de votre charte</p>
+                </div>
+              </div>
+              <div class="slide__module-node slide__module-node--amber">
+                <svg class="slide__module-node-icon"><use href="#i-check-circle"/></svg>
+                <div class="slide__module-node-body">
+                  <p class="slide__module-node-name">Contrôle qualité</p>
+                  <p class="slide__module-node-desc">Détecter le contenu vide et générique avant publication</p>
+                </div>
+              </div>
+              <div class="slide__module-node slide__module-node--mint">
+                <svg class="slide__module-node-icon"><use href="#i-pen-tool"/></svg>
+                <div class="slide__module-node-body">
+                  <p class="slide__module-node-name">Craft & Visuels</p>
+                  <p class="slide__module-node-desc">Créer les templates visuels aux couleurs de votre rédaction</p>
+                </div>
+              </div>
+              <div class="slide__module-node slide__module-node--electric">
+                <svg class="slide__module-node-icon"><use href="#i-film"/></svg>
+                <div class="slide__module-node-body">
+                  <p class="slide__module-node-name">Frame, vidéo</p>
+                  <p class="slide__module-node-desc">Monter automatiquement vos extraits vidéos à partir d'un prompt</p>
+                </div>
+              </div>
+              <div class="slide__module-node slide__module-node--mint">
+                <svg class="slide__module-node-icon"><use href="#i-anchor"/></svg>
+                <div class="slide__module-node-body">
+                  <p class="slide__module-node-name">Share & Preuve</p>
+                  <p class="slide__module-node-desc">Publier partout et certifier l'origine du contenu</p>
+                </div>
+              </div>
+            </div>
+            <div class="slide__dna-center">
+              <svg class="slide__dna-center-icon"><use href="#i-disc"/></svg>
+              <div>
+                <p class="slide__dna-center-title">DNA, au cœur de chaque module</p>
+                <p class="slide__dna-center-desc">Votre mémoire éditoriale : charte, voix, corrections passées. L'IA s'en nourrit à chaque étape.</p>
+              </div>
+            </div>
+          </div>
+          <div class="slide__footer"><span>04 · Les modules</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             05 — DNA : VOTRE MÉMOIRE ÉDITORIALE
+        ════════════════════════════════════════════════════ -->
+        <section class="slide slide--accent slide--with-media" data-slide="5" aria-label="DNA — mémoire éditoriale">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">05 / 22</span>
+          <div class="slide__content">
+            <div class="slide__media-text">
+              <p class="slide__kicker">Module · DNA</p>
+              <h2 class="slide__title">Votre identité au coeur de notre workflow</h2>
+              <div class="slide__problem">
+                <span class="slide__problem-tag">Avant</span>
+                Votre déontologie, vos principes, vos missions et valeurs encadre chacune de nos actions.
+              </div>
+              <div class="slide__timeline">
+                <div class="slide__tl-step">
+                  <div class="slide__tl-dot">1</div>
+                  <p class="slide__tl-label">Charte uploadée</p>
+                  <p class="slide__tl-sub">PDF, doc, exemples</p>
+                </div>
+                <div class="slide__tl-step">
+                  <div class="slide__tl-dot slide__tl-dot--electric">2</div>
+                  <p class="slide__tl-label">Profil activé</p>
+                  <p class="slide__tl-sub">Ton, sujets, règles</p>
+                </div>
+                <div class="slide__tl-step">
+                  <div class="slide__tl-dot slide__tl-dot--amber">3</div>
+                  <p class="slide__tl-label">Génération guidée</p>
+                  <p class="slide__tl-sub">Chaque brouillon est aligné</p>
+                </div>
+                <div class="slide__tl-step">
+                  <div class="slide__tl-dot slide__tl-dot--mint">4</div>
+                  <p class="slide__tl-label">Corrections mémorisées</p>
+                  <p class="slide__tl-sub">L'IA s'améliore</p>
+                </div>
+              </div>
+              <div class="slide__value">
+                <span class="slide__value-tag">Valeur</span>
+                L'IA connaît votre voix, la défend et l'améliore chaque jour, sans intervention manuelle.
+              </div>
+            </div>
+            <div class="slide__media slide__media--dual">
+              <img src="../assets/screenshots/deepmedia_14.png" alt="DeepMedia, Interface DNA (1)" />
+              <img src="../assets/screenshots/deepmedia_15.png" alt="DeepMedia, Interface DNA (2)" />
+            </div>
+          </div>
+          <div class="slide__footer"><span>05 · DNA</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             06 — VEILLE & INVESTIGATION
+        ════════════════════════════════════════════════════ -->
+        <section class="slide slide--with-media" data-slide="6" aria-label="Veille et investigation">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">06 / 22</span>
+          <div class="slide__content">
+            <div class="slide__media-text">
+              <p class="slide__kicker">Module · Veille & Sources</p>
+              <h2 class="slide__title">identifier et ingérer les bonnes infos, constituer le dossier</h2>
+              <div class="slide__problem">
+                <span class="slide__problem-tag">Avant</span>
+                Curation étendue sur plus de 500 sources. Possibilité d'importer et traiter tout type de contenu, audio, notes, url, pdf..
+              </div>
+              <div class="slide__timeline">
+                <div class="slide__tl-step">
+                  <div class="slide__tl-dot">1</div>
+                  <p class="slide__tl-label">Thèmes configurés</p>
+                  <p class="slide__tl-sub">Mots-clés, zones géo, sources</p>
+                </div>
+                <div class="slide__tl-step">
+                  <div class="slide__tl-dot slide__tl-dot--electric">2</div>
+                  <p class="slide__tl-label">Veille en continu</p>
+                  <p class="slide__tl-sub">Web, presse, réseaux</p>
+                </div>
+                <div class="slide__tl-step">
+                  <div class="slide__tl-dot slide__tl-dot--amber">3</div>
+                  <p class="slide__tl-label">Alertes ciblées</p>
+                  <p class="slide__tl-sub">Uniquement ce qui compte</p>
+                </div>
+                <div class="slide__tl-step">
+                  <div class="slide__tl-dot slide__tl-dot--mint">4</div>
+                  <p class="slide__tl-label">Dossier prêt</p>
+                  <p class="slide__tl-sub">Sources tracées, classifiées</p>
+                </div>
+              </div>
+              <div class="slide__value">
+                <span class="slide__value-tag">Valeur</span>
+                 Monitoring simple de l'ensemble de l'actualité. Structuration fes flux et curation aisée des sujets à traiter.
+              </div>
+            </div>
+            <div class="slide__media">
+              <img src="../assets/screenshots/deepmedia_25.png" alt="DeepMedia, Interface Veille & Sources" />
+            </div>
+          </div>
+          <div class="slide__footer"><span>06 · Veille & Sources</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             07 — STORY & RÉDACTION
+        ════════════════════════════════════════════════════ -->
+        <section class="slide slide--accent slide--with-media" data-slide="7" aria-label="Story et rédaction">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">07 / 22</span>
+          <div class="slide__content">
+            <div class="slide__media-text">
+              <p class="slide__kicker">Module · Story & Dek</p>
+              <h2 class="slide__title">Produire vite, produire juste, produire comme vous</h2>
+              <div class="slide__problem">
+                <span class="slide__problem-tag">Avant</span>
+                Produire du contenu qui reflète vos valeurs et votre ton prend du temps. Une IA générique ne comprend pas votre ton.
+              </div>
+              <div class="slide__cols">
+                <div>
+                  <p class="slide__col-title">Story, article long</p>
+                  <ul class="slide__col-list">
+                    <li><svg class="icon"><use href="#i-disc"/></svg>Modules guidés par l'angle éditorial</li>
+                    <li><svg class="icon"><use href="#i-disc"/></svg>Styles et langues attachés à votre profil</li>
+                    <li><svg class="icon"><use href="#i-disc"/></svg>Plusieurs formats depuis un seul texte</li>
+                  </ul>
+                </div>
+                <div>
+                  <p class="slide__col-title">Visuels réseaux sociaux</p>
+                  <ul class="slide__col-list">
+                    <li><svg class="icon"><use href="#i-disc"/></svg>Carousels et visuels</li>
+                    <li><svg class="icon"><use href="#i-disc"/></svg>Format optimisé par canal</li>
+                    <li><svg class="icon"><use href="#i-disc"/></svg>DNA respecté en temps réel</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="slide__value">
+                <span class="slide__value-tag">Valeur</span>
+                Un contenu bien produit, aligné sur votre ADN, en une fraction du temps habituel.
+              </div>
+            </div>
+            <div class="slide__media">
+              <img src="../assets/screenshots/deepmedia_3.png" alt="DeepMedia, Interface Story & Rédaction" />
+            </div>
+          </div>
+          <div class="slide__footer"><span>07 · Story & Dek</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             08 — CONTRÔLE QUALITÉ
+        ════════════════════════════════════════════════════ -->
+        <section class="slide" data-slide="8" aria-label="Contrôle qualité">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">08 / 22</span>
+          <div class="slide__content">
+            <p class="slide__kicker">Module · Contrôle qualité</p>
+            <h2 class="slide__title">Publier avec confiance, pas avec anxiété</h2>
+            <div class="slide__problem">
+              <span class="slide__problem-tag">Avant</span>
+              L'IA produit des textes lisses, vides et interchangeables qui nuisent à votre crédibilité, sans que vous le voyiez toujours.
+            </div>
+            <div class="slide__cards">
+              <div class="slide__card slide__card--electric">
+                <svg class="slide__card-icon"><use href="#i-eye"/></svg>
+                <h3 class="slide__card-title">Détection de formules creuses</h3>
+                <p class="slide__card-body">Le système repère les tournures génériques, les transitions mécaniques et les mots de remplissage.</p>
+              </div>
+              <div class="slide__card slide__card--amber">
+                <svg class="slide__card-icon"><use href="#i-alert-triangle"/></svg>
+                <h3 class="slide__card-title">Alertes en temps réel</h3>
+                <p class="slide__card-body">Les passages suspects sont signalés pendant la rédaction, avant qu'il soit trop tard.</p>
+              </div>
+              <div class="slide__card slide__card--mint">
+                <svg class="slide__card-icon"><use href="#i-check-circle"/></svg>
+                <h3 class="slide__card-title">Score "humain"</h3>
+                <p class="slide__card-body">Une métrique simple : 100 = aucun pattern générique détecté. Vous savez exactement où vous en êtes.</p>
+              </div>
+            </div>
+            <div class="slide__value">
+              <span class="slide__value-tag">Valeur</span>
+              Tout contenu suspect est signalé. Vous décidez, vous publiez, avec la certitude que votre voix est bien là.
+            </div>
+          </div>
+          <div class="slide__footer"><span>08 · Contrôle qualité</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             09 — CRAFT & VISUELS
+        ════════════════════════════════════════════════════ -->
+        <section class="slide slide--accent slide--with-media" data-slide="9" aria-label="Craft et visuels">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">09 / 22</span>
+          <div class="slide__content">
+            <div class="slide__media-text">
+              <p class="slide__kicker">Module · Craft & Visual</p>
+              <h2 class="slide__title">Vos visuels aux couleurs de votre rédaction</h2>
+              <div class="slide__problem">
+                <span class="slide__problem-tag">Avant</span>
+                Créer des visuels éditoriaux cohérents mobilise un designer ou prend des heures pour chaque publication.
+              </div>
+              <div class="slide__cards">
+                <div class="slide__card">
+                  <svg class="slide__card-icon"><use href="#i-edit"/></svg>
+                  <h3 class="slide__card-title">Éditeur no code</h3>
+                  <p class="slide__card-body">Créez et modifiez vos gabarits visuels sans ouvrir Photoshop ni Canva.</p>
+                </div>
+                <div class="slide__card slide__card--electric">
+                  <svg class="slide__card-icon"><use href="#i-activity"/></svg>
+                  <h3 class="slide__card-title">Données en direct</h3>
+                  <p class="slide__card-body">Les chiffres et les textes se mettent à jour automatiquement dans vos visuels.</p>
+                </div>
+                <div class="slide__card slide__card--mint">
+                  <svg class="slide__card-icon"><use href="#i-layers"/></svg>
+                  <h3 class="slide__card-title">Multi-format instantané</h3>
+                  <p class="slide__card-body">Un seul gabarit génère toutes les déclinaisons réseaux en un clic.</p>
+                </div>
+              </div>
+              <div class="slide__value">
+                <span class="slide__value-tag">Valeur</span>
+                Des visuels cohérents et aux couleurs de votre marque en 2 minutes, sans mobiliser de main d'oeuvre.
+              </div>
+            </div>
+            <div class="slide__media">
+              <img src="../assets/screenshots/deepmedia_4.png" alt="DeepMedia, Interface Craft & Visuels" />
+            </div>
+          </div>
+          <div class="slide__footer"><span>09 · Craft & Visual</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             10 — FRAME : VIDÉO
+        ════════════════════════════════════════════════════ -->
+        <section class="slide slide--with-media" data-slide="10" aria-label="Frame — vidéo">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">10 / 22</span>
+          <div class="slide__content">
+            <div class="slide__media-text">
+              <p class="slide__kicker">Module · Frame</p>
+              <h2 class="slide__title">Un logiciel de montage intelligent, pensé pour exécuter rapidemente</h2>
+              <div class="slide__problem">
+                <span class="slide__problem-tag">Avant</span>
+                Décliner une vidéo pour la TV, Instagram et YouTube représente 3× le temps de montage, souvent externalisé et coûteux.
+              </div>
+              <div class="slide__cards">
+                <div class="slide__card">
+                  <svg class="slide__card-icon"><use href="#i-film"/></svg>
+                  <h3 class="slide__card-title">Montage par prompt ou par suggestion</h3>
+                  <p class="slide__card-body">La sélection et la découpe des plans suivent automatiquement.</p>
+                </div>
+                <div class="slide__card slide__card--electric">
+                  <svg class="slide__card-icon"><use href="#i-smartphone"/></svg>
+                  <h3 class="slide__card-title">Multi-ratio automatique</h3>
+                  <p class="slide__card-body">Horizontal, vertical, carré, tous générés depuis un seul montage source.</p>
+                </div>
+                <div class="slide__card slide__card--amber">
+                  <svg class="slide__card-icon"><use href="#i-check-circle"/></svg>
+                  <h3 class="slide__card-title">Auto-reframe selon les formats</h3>
+                  <p class="slide__card-body">Notre système Argus, développé in-house, recadre automatiquement, sans faire appel à un LLM.</p>
+                </div>
+              </div>
+              <div class="slide__value">
+                <span class="slide__value-tag">Valeur</span>
+                Ce qui prenait de longues heures de montage se fait en quelques clics. Vous publiez partout, en même temps.
+              </div>
+            </div>
+            <div class="slide__media">
+              <img src="../assets/screenshots/deepmedia_8.png" alt="DeepMedia, Interface Frame / Montage vidéo" />
+            </div>
+          </div>
+          <div class="slide__footer"><span>10 · Frame</span></div>
+        </section>
+
+        <section class="slide slide--accent slide--with-media" data-slide="11" aria-label="Map et Climate">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">11 / 22</span>
+          <div class="slide__content">
+            <div class="slide__media-text">
+              <p class="slide__kicker">Module · Map / Climate</p>
+              <h2 class="slide__title">Cartographier, analyser et raconter les territoires</h2>
+              <div class="slide__problem">
+                <span class="slide__problem-tag">Avant</span>
+                Transformer des données géographiques et climatiques en récit visuel exige plusieurs outils spécialisés et de nombreux exports.
+              </div>
+              <div class="slide__cards">
+                <div class="slide__card">
+                  <svg class="slide__card-icon"><use href="#i-map"/></svg>
+                  <h3 class="slide__card-title">Cartographie interactive</h3>
+                  <p class="slide__card-body">Composez vos cartes, choisissez vos fonds et cadrez précisément chaque territoire.</p>
+                </div>
+                <div class="slide__card slide__card--electric">
+                  <svg class="slide__card-icon"><use href="#i-layers"/></svg>
+                  <h3 class="slide__card-title">Données climatiques</h3>
+                  <p class="slide__card-body">Superposez données, indicateurs et couches satellite dans une seule scène.</p>
+                </div>
+                <div class="slide__card slide__card--mint">
+                  <svg class="slide__card-icon"><use href="#i-activity"/></svg>
+                  <h3 class="slide__card-title">Animation et narration</h3>
+                  <p class="slide__card-body">Animez les transitions et transformez une analyse complexe en récit visuel clair.</p>
+                </div>
+              </div>
+              <div class="slide__value">
+                <span class="slide__value-tag">Valeur</span>
+                De la donnée brute à la carte publiée, vous créez des récits géographiques cohérents sans changer d'environnement.
+              </div>
+            </div>
+            <div class="slide__media slide__media--dual">
+              <img src="../assets/screenshots/deepmedia_9.png" alt="DeepMedia, Interface Map et Climate (1)" />
+              <img src="../assets/screenshots/deepmedia_29.png" alt="DeepMedia, Interface Map et Climate (2)" />
+            </div>
+          </div>
+          <div class="slide__footer"><span>11 · Map / Climate</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             12 — SHARE & PREUVE D'ORIGINE
+        ════════════════════════════════════════════════════ -->
+        <section class="slide slide--accent slide--with-media" data-slide="12" aria-label="Share et preuve d'origine">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">12 / 22</span>
+          <div class="slide__content">
+            <div class="slide__media-text">
+              <p class="slide__kicker">Module · Share & Footprint</p>
+              <h2 class="slide__title">Publier partout en un clic. Prouver l'authenticité pour toujours.</h2>
+              <div class="slide__problem">
+                <span class="slide__problem-tag">Avant</span>
+                Diffuser sur plusieurs canaux = copier-coller manuel, formats qui cassent, et impossible de prouver qui a publié quoi et quand.
+              </div>
+              <div class="slide__cards">
+                <div class="slide__card slide__card--electric">
+                  <svg class="slide__card-icon"><use href="#i-share"/></svg>
+                  <h3 class="slide__card-title">Publication multi-canal</h3>
+                  <p class="slide__card-body">Pages publiques, article reader, carrousels, exports, en un seul geste.</p>
+                </div>
+                <div class="slide__card slide__card--amber">
+                  <svg class="slide__card-icon"><use href="#i-lock"/></svg>
+                  <h3 class="slide__card-title">Filigrane invisible</h3>
+                  <p class="slide__card-body">Votre marque est incrustée dans le contenu, même après copier-coller ou export.</p>
+                </div>
+                <div class="slide__card">
+                  <svg class="slide__card-icon"><use href="#i-anchor"/></svg>
+                  <h3 class="slide__card-title">Certificat d'origine</h3>
+                  <p class="slide__card-body">Chaque contenu est horodaté de façon permanente. La preuve ne peut pas être falsifiée.</p>
+                </div>
+              </div>
+              <div class="slide__value">
+                <span class="slide__value-tag">Valeur</span>
+                Zéro copier-coller, zéro oubli. Et une preuve d'authenticité que vous pouvez montrer à n'importe quel moment.
+              </div>
+            </div>
+            <div class="slide__media">
+              <img src="../assets/screenshots/deepmedia_24.png" alt="DeepMedia, Interface Share & Publication" />
+            </div>
+          </div>
+          <div class="slide__footer"><span>12 · Share & Footprint</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             13 — WORKFLOWS AVANCÉS — ATOMIC
+        ════════════════════════════════════════════════════ -->
+        <section class="slide" data-slide="13" aria-label="Workflows avancés Atomic">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">13 / 22</span>
+          <div class="slide__content">
+            <p class="slide__kicker">Workflow</p>
+            <h2 class="slide__title">Du formulaire simple à l'enquête complexe</h2>
+            <div class="slide__problem">
+              <span class="slide__problem-tag">Avant</span>
+              Workflow rigides. Difficile de programmer des automations, des veilles, des processus..
+            </div>
+            <div class="slide__compare" style="margin-top:0.85rem;">
+              <div class="slide__compare-col slide__compare-col--electric">
+                <svg class="slide__compare-icon"><use href="#i-zap"/></svg>
+                <p class="slide__compare-title">Workflows modulables et autonomes</p>
+                <ul class="slide__compare-list">
+                  <li>Workflow construits par vous, pour vous, sur mesure</li>
+                  <li>grande modularité avec 50 nodes interconnectables</li>
+                  <li>Artchitecture cognitive de votre production de contenu</li>
+                  <li>Validation humaine à chaque étape</li>
+                </ul>
+              </div>
+              <div class="slide__compare-col slide__compare-col--solution">
+                <svg class="slide__compare-icon"><use href="#i-cpu"/></svg>
+                <p class="slide__compare-title">Module Atomic</p>
+                <ul class="slide__compare-list">
+                  <li>Espace de travail visuel : relier sources, entités, analyses</li>
+                  <li>Chaque étape est tracée et reproductible</li>
+                  <li>Collaboratif et versionné</li>
+                  <li>Idéal pour mettre en place des workflows complexes standardisés</li>
+                </ul>
+              </div>
+            </div>
+            <div class="slide__value">
+              <span class="slide__value-tag">Valeur</span>
+              Mise en place de workflows stantardisés et autonomes, de la curation à la publication, déclenchés automatiquement.
+            </div>
+          </div>
+          <div class="slide__footer"><span>13 · Workflows avancés</span></div>
+        </section>
+
+        <section class="slide slide--screenshot" data-slide="14" aria-label="Workflow Atomic en plein écran">
+          <div class="slide__content">
+            <img src="../assets/screenshots/deepmedia_5.png" alt="DeepMedia, Workflow Atomic" />
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             15 — L'INTELLIGENCE IA MAISON
+        ════════════════════════════════════════════════════ -->
+        <section class="slide slide--accent slide--with-media" data-slide="15" aria-label="Intelligence IA maison">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">15 / 22</span>
+          <div class="slide__content">
+            <div class="slide__media-text">
+              <p class="slide__kicker">Technologie maison</p>
+              <h2 class="slide__title">Les meilleurs moteurs du marché, sous contrôle strict</h2>
+              <p class="slide__lead">Nous avons développé nos propres modèles d'inférence et nos couches de contrôle de l'IA.</p>
+              <div class="slide__cards" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="slide__card slide__card--electric">
+                  <svg class="slide__card-icon"><use href="#i-eye"/></svg>
+                  <h3 class="slide__card-title">Hermès, le critique</h3>
+                  <p class="slide__card-body">Relit chaque texte généré, émet des objections et apprend de vos corrections.</p>
+                </div>
+                <div class="slide__card slide__card--amber">
+                  <svg class="slide__card-icon"><use href="#i-disc"/></svg>
+                  <h3 class="slide__card-title">Aede, la mémoire</h3>
+                  <p class="slide__card-body">Mesure l'écart entre le brouillon IA et le texte publié, injecte ce savoir dans les futures générations.</p>
+                </div>
+                <div class="slide__card slide__card--mint">
+                  <svg class="slide__card-icon"><use href="#i-map"/></svg>
+                  <h3 class="slide__card-title">Atlas, la carte</h3>
+                  <p class="slide__card-body">Transforme une question en langage naturel en action précise sur une carte.</p>
+                </div>
+                <div class="slide__card">
+                  <svg class="slide__card-icon"><use href="#i-monitor-play"/></svg>
+                  <h3 class="slide__card-title">Argus, l'arbitre vidéo</h3>
+                  <p class="slide__card-body">Confirme ou rejette chaque plan de montage selon des règles strictes.</p>
+                </div>
+              </div>
+            </div>
+            <div class="slide__media">
+              <img src="../assets/screenshots/deepmedia_7.png" alt="DeepMedia, Architecture IA maison" />
+            </div>
+          </div>
+          <div class="slide__footer"><span>15 · Intelligence IA maison</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             16 — IA LIBRE VS DEEPMEDIA
+        ════════════════════════════════════════════════════ -->
+        <section class="slide" data-slide="16" aria-label="IA libre vs DeepMedia">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">16 / 22</span>
+          <div class="slide__content">
+            <p class="slide__kicker">Philosophie</p>
+            <h2 class="slide__title">Pourquoi ne pas simplement utiliser ChatGPT ?</h2>
+            <p class="slide__lead">Les outils IA génériques sont puissants. Mais ils oublient qui vous êtes, inventent des faits et vous coûtent cher à mesure que vous scalez.</p>
+            <div class="slide__compare">
+              <div class="slide__compare-col slide__compare-col--problem">
+                <p class="slide__compare-title">IA générative libre</p>
+                <ul class="slide__compare-list">
+                  <li>Oublie votre contexte à chaque session</li>
+                  <li>Peut inventer des faits sans le signaler</li>
+                  <li>Ignore votre charte et votre ton</li>
+                  <li>Facture à l'usage — coûts imprévisibles</li>
+                  <li>Aucune traçabilité des décisions prises</li>
+                </ul>
+              </div>
+              <div class="slide__compare-col slide__compare-col--solution">
+                <p class="slide__compare-title">DeepMedia</p>
+                <ul class="slide__compare-list">
+                  <li>Votre ADN guide chaque génération</li>
+                  <li>Contrôle et signale chaque doute</li>
+                  <li>Faible coût d'utilisation, malgré une approche industirelle</li>
+                  <li>Nos modèles d'inférence ne consomment pas de tokens</li>
+                  <li>Chaque décision est tracée et auditable</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="slide__footer"><span>16 · Contrôle vs liberté</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             17 — MOBILE & DESKTOP
+        ════════════════════════════════════════════════════ -->
+        <section class="slide slide--accent" data-slide="17" aria-label="Mobile et desktop">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">17 / 22</span>
+          <div class="slide__content">
+            <p class="slide__kicker">Déploiement</p>
+            <h2 class="slide__title">Sur le terrain comme au bureau, le même outil</h2>
+            <div class="slide__problem">
+              <span class="slide__problem-tag">Avant</span>
+              Logiciels locaux installés sur Desktop. Gestion IT complexe.
+            </div>
+            <div class="slide__cards" style="margin-top:0.85rem;">
+              <div class="slide__card slide__card--electric">
+                <svg class="slide__card-icon"><use href="#i-smartphone"/></svg>
+                <h3 class="slide__card-title">Mobile</h3>
+                <p class="slide__card-body">Notes, sources, audits, publications rapides : communiquez depuis le terrain.</p>
+              </div>
+              <div class="slide__card slide__card--amber">
+                <svg class="slide__card-icon"><use href="#i-monitor-play"/></svg>
+                <h3 class="slide__card-title">Production desktop</h3>
+                <p class="slide__card-body">Rédaction approfondie, montage vidéo, design éditorial, à pleine résolution sur le bureau.</p>
+              </div>
+              <div class="slide__card slide__card--mint">
+                <svg class="slide__card-icon"><use href="#i-globe"/></svg>
+                <h3 class="slide__card-title">Aucune installation</h3>
+                <p class="slide__card-body">Accessible via le navigateur sur n'importe quel appareil. Pas d'app à télécharger, pas de mise à jour manuelle.</p>
+              </div>
+            </div>
+            <div class="slide__value">
+              <span class="slide__value-tag">Valeur</span>
+              Le même workspace partout. Ce que vous commencez sur le terrain, vous le finissez au bureau, sans perdre aucune donnée.
+            </div>
+          </div>
+          <div class="slide__footer"><span>17 · Mobile & Desktop</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             18 — UN SEUL WORKSPACE
+        ════════════════════════════════════════════════════ -->
+        <section class="slide" data-slide="18" aria-label="Un seul workspace">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">18 / 22</span>
+          <div class="slide__content">
+            <p class="slide__kicker">Cohérence totale</p>
+            <h2 class="slide__title">Un seul fil. Zéro friction.</h2>
+            <p class="slide__lead">Toutes les étapes de la production se retrouvent au même endroit, sous la même identité, sans jamais exporter ou re-saisir.</p>
+            <div class="slide__stats">
+              <div class="slide__stat">
+                <div class="slide__stat-value">1</div>
+                <div class="slide__stat-label">Workspace unique du brief à la diffusion</div>
+              </div>
+              <div class="slide__stat">
+                <div class="slide__stat-value">15+</div>
+                <div class="slide__stat-label">Modules connectés dans une seule licence</div>
+              </div>
+              <div class="slide__stat">
+                <div class="slide__stat-value">0</div>
+                <div class="slide__stat-label">Export intermédiaire, copier-coller ou re-saisie</div>
+              </div>
+            </div>
+            <div class="slide__timeline" style="margin-top:1.5rem;">
+              <div class="slide__tl-step">
+                <div class="slide__tl-dot">1</div>
+                <p class="slide__tl-label">Veille</p>
+              </div>
+              <div class="slide__tl-step">
+                <div class="slide__tl-dot slide__tl-dot--electric">2</div>
+                <p class="slide__tl-label">Rédaction</p>
+              </div>
+              <div class="slide__tl-step">
+                <div class="slide__tl-dot slide__tl-dot--amber">3</div>
+                <p class="slide__tl-label">Visuels</p>
+              </div>
+              <div class="slide__tl-step">
+                <div class="slide__tl-dot slide__tl-dot--electric">4</div>
+                <p class="slide__tl-label">Vidéo</p>
+              </div>
+              <div class="slide__tl-step">
+                <div class="slide__tl-dot slide__tl-dot--mint">5</div>
+                <p class="slide__tl-label">Publication</p>
+              </div>
+              <div class="slide__tl-step">
+                <div class="slide__tl-dot slide__tl-dot--mint">6</div>
+                <p class="slide__tl-label">Preuve</p>
+              </div>
+            </div>
+          </div>
+          <div class="slide__footer"><span>18 · Un seul workspace</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             19 — MODÈLE ÉCONOMIQUE
+        ════════════════════════════════════════════════════ -->
+        <section class="slide slide--accent" data-slide="19" aria-label="Modèle économique">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">19 / 22</span>
+          <div class="slide__content">
+            <p class="slide__kicker">Business</p>
+            <h2 class="slide__title">Un abonnement mensuel + un nombre de requêtes. Jamais de surprise.</h2>
+            <p class="slide__lead">Fini l'opacité des outils qui facturent selon des critères techniques incompréhensibles. Chez DeepMedia, vous payez pour ce que vous produisez.</p>
+            <div class="slide__work-grid">
+              <div class="slide__work-step">
+                <div class="slide__step-num">Phase 1</div>
+                <h3 class="slide__work-title">Freemium</h3>
+                <p class="slide__work-body">Accès libre pour les journalistes indépendants, les communiquants et les créateurs. Adoptez, testez, convainquez votre équipe.</p>
+              </div>
+              <div class="slide__work-step">
+                <div class="slide__step-num">Phase 2</div>
+                <h3 class="slide__work-title">Équipes & Rédactions</h3>
+                <p class="slide__work-body">Offres structurées pour les rédactions, agences de communication et studios de contenu.</p>
+              </div>
+              <div class="slide__work-step">
+                <div class="slide__step-num">Phase 3</div>
+                <h3 class="slide__work-title">Institutions</h3>
+                <p class="slide__work-body">Communication politique, collectivités, groupes media, déploiement à grande échelle.</p>
+              </div>
+            </div>
+            <div class="slide__value" style="margin-top:1.25rem;">
+              <span class="slide__value-tag">Exemple</span>
+              1 outil intelligent, des coûts maitrisés avec des critères clairs.
+            </div>
+          </div>
+          <div class="slide__footer"><span>19 · Modèle économique</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             20 — POUR QUI
+        ════════════════════════════════════════════════════ -->
+        <section class="slide" data-slide="20" aria-label="Pour qui est DeepMedia">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">20 / 22</span>
+          <div class="slide__content">
+            <p class="slide__kicker">Clients</p>
+            <h2 class="slide__title">Pour tous ceux qui produisent du contenu à enjeu</h2>
+            <div class="slide__cards">
+              <div class="slide__card slide__card--electric">
+                <svg class="slide__card-icon"><use href="#i-user"/></svg>
+                <h3 class="slide__card-title">Journalistes et auteurs indépendants</h3>
+                <p class="slide__card-body">Produire plus vite sans perdre sa signature</p>
+              </div>
+              <div class="slide__card slide__card--amber">
+                <svg class="slide__card-icon"><use href="#i-users"/></svg>
+                <h3 class="slide__card-title">Rédactions & médias</h3>
+                <p class="slide__card-body">Unifier les workflows, garder le contrôle éditorial, réduire les coûts de production.</p>
+              </div>
+              <div class="slide__card slide__card--mint">
+                <svg class="slide__card-icon"><use href="#i-trending-up"/></svg>
+                <h3 class="slide__card-title">Agences et entreprises</h3>
+                <p class="slide__card-body">Délivrer du contenu cohérent pour des dizaines de clients sans multiplier les outils.</p>
+              </div>
+              <div class="slide__card">
+                <svg class="slide__card-icon"><use href="#i-building"/></svg>
+                <h3 class="slide__card-title">Institutions</h3>
+                <p class="slide__card-body">Communiquer avec clarté et cohérence, sur le fond comme la forme.</p>
+              </div>
+            </div>
+          </div>
+          <div class="slide__footer"><span>20 · Pour qui</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             21 — PROCHAINES ÉTAPES
+        ════════════════════════════════════════════════════ -->
+        <section class="slide slide--accent" data-slide="21" aria-label="Prochaines étapes">
+          <div class="slide__brand"><img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" /></div>
+          <span class="slide__number">21 / 22</span>
+          <div class="slide__content">
+            <p class="slide__kicker">Passage à l'action</p>
+            <h2 class="slide__title">Trois façons de commencer</h2>
+            <div class="slide__work-grid">
+              <div class="slide__work-step">
+                <div class="slide__step-num">Option A</div>
+                <h3 class="slide__work-title">Démo personnalisée</h3>
+                <p class="slide__work-body">45 minutes avec votre équipe. On part de votre cas d'usage réel et on montre comment DeepMedia y répond.</p>
+              </div>
+              <div class="slide__work-step">
+                <div class="slide__step-num">Option B</div>
+                <h3 class="slide__work-title">Accès Freemium</h3>
+                <p class="slide__work-body">Démarrez gratuitement dès aujourd'hui. Testez les modules sur votre propre contenu, sans engagement.</p>
+              </div>
+              <div class="slide__work-step">
+                <div class="slide__step-num">Option C</div>
+                <h3 class="slide__work-title">Pilote équipe</h3>
+                <p class="slide__work-body">Un accès pro pour 3 à 5 personnes pendant 30 jours. On mesure ensemble les gains réels.</p>
+              </div>
+            </div>
+            <div class="slide__badges" style="margin-top:1.5rem;">
+              <span class="slide__badge slide__badge--amber">Sans engagement</span>
+              <span class="slide__badge slide__badge--electric">Onboarding inclus</span>
+              <span class="slide__badge slide__badge--mint">Résultats en 2 semaines</span>
+            </div>
+          </div>
+          <div class="slide__footer"><span>21 · Démarrer</span></div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════
+             22 — CONCLUSION / CTA
+        ════════════════════════════════════════════════════ -->
+        <section class="slide slide--center" data-slide="22" aria-label="Conclusion">
+          <div class="slide__brand">
+            <img class="slide__brand-logo" src="deepmedia.svg" alt="DeepMedia" />
+          </div>
+          <span class="slide__number">22 / 22</span>
+          <div class="slide__content">
+            <p class="slide__kicker">Conclusion</p>
+            <h1 class="slide__promise">
+              <span>Prêt pour</span><br/>
+              <span class="slide__promise-accent">une démo</span><br/>
+              <span>sur vos cas réels ?</span>
+            </h1>
+            <p class="slide__subtitle">Vous avez vu les modules. Voyons ensemble comment ils s'appliquent à votre production quotidienne.</p>
+            <div class="slide__stats" style="margin-top:2rem;max-width:62ch;">
+              <div class="slide__stat">
+                <div class="slide__stat-value">15+</div>
+                <div class="slide__stat-label">Modules dans une seule licence</div>
+              </div>
+              <div class="slide__stat">
+                <div class="slide__stat-value">DNA</div>
+                <div class="slide__stat-label">Votre identité au cœur du système</div>
+              </div>
+              <div class="slide__stat">
+                <div class="slide__stat-value">0</div>
+                <div class="slide__stat-label">Export intermédiaire nécessaire</div>
+              </div>
+            </div>
+          </div>
+          <div class="slide__footer"></div>
+        </section>
+
+      </div><!-- /deck__slides -->
+    </div><!-- /deck__fit -->
+  </div><!-- /deck -->
+
+  <script>
+    (() => {
+      const slides  = Array.from(document.querySelectorAll('.slide'));
+      const counter = document.getElementById('counter');
+      let current   = 0;
+
+      function show(i) {
+        if (i < 0) i = slides.length - 1;
+        if (i >= slides.length) i = 0;
+        const prev = slides[current];
+        slides.forEach((s, idx) => {
+          s.classList.toggle('is-active', idx === i);
+          s.setAttribute('aria-hidden', idx === i ? 'false' : 'true');
+        });
+        current = i;
+        counter.textContent = String(i + 1).padStart(2, '0') + ' / ' + slides.length;
+
+        // Reset animations on the active slide for re-trigger on navigation
+        const active = slides[i];
+
+        // Update dynamic badge number on active slide
+        const numEl = active.querySelector('.slide__number');
+        if (numEl) {
+          numEl.innerHTML = '<span class="slide__number-current">' + String(i + 1).padStart(2, '0') + '</span>' +
+            '<span class="slide__number-sep">/</span>' +
+            '<span>' + String(slides.length).padStart(2, '0') + '</span>';
+        }
+
+        active.querySelectorAll('*').forEach(el => {
+          el.style.animation = 'none';
+          el.offsetHeight; // force reflow
+          el.style.animation = '';
+        });
+      }
+
+      document.querySelectorAll('[data-action="next"]').forEach(b => b.addEventListener('click', () => show(current + 1)));
+      document.querySelectorAll('[data-action="prev"]').forEach(b => b.addEventListener('click', () => show(current - 1)));
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'ArrowRight' || e.key === ' ') show(current + 1);
+        if (e.key === 'ArrowLeft')                   show(current - 1);
+      });
+
+      document.querySelector('[data-action="fullscreen"]')?.addEventListener('click', () => {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+        else document.exitFullscreen().catch(() => {});
+      });
+
+      const themeBtn  = document.querySelector('[data-action="theme"]');
+      const themeIcon = document.getElementById('theme-icon');
+      let dark = true;
+      themeBtn?.addEventListener('click', () => {
+        dark = !dark;
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        themeIcon.querySelector('use').setAttribute('href', dark ? '#i-sun' : '#i-moon');
+      });
+
+      show(0);
+
+      // ── Scale fixed-size deck to fit viewport ──
+      const fit = document.querySelector('.deck__fit');
+      function scaleDeck() {
+        const sx = window.innerWidth  / 1920;
+        const sy = window.innerHeight / 1080;
+        const s  = Math.min(sx, sy);
+        fit.style.transform = 'scale(' + s + ')';
+      }
+      scaleDeck();
+      window.addEventListener('resize', scaleDeck);
+    })();
+  </script>
+</body>
+</html>

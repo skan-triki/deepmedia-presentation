@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>DeepMedia — Presentation Viewer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; overflow: hidden; background: #0a0a0a; }
+  body { font-family: Inter, system-ui, -apple-system, sans-serif; }
+
+  :root {
+    --dm-surface-elevated: #262626;
+    --dm-muted: #737373;
+    --dm-border: rgba(255,255,255,0.10);
+    --dm-border-subtle: rgba(255,255,255,0.06);
+    --dm-v-electric: #31cfff;
+    --dm-radius-pill: 999px;
+  }
+  [data-theme="light"] {
+    --dm-surface-elevated: #f5f5f5;
+    --dm-muted: #737373;
+    --dm-border: #d4d4d4;
+    --dm-border-subtle: rgba(0,0,0,0.08);
+    --dm-v-electric: #2a6bff;
+  }
+
+  #viewer {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+    transition: opacity 300ms ease;
+  }
+  #viewer.is-swapping { opacity: 0; }
+
+  /* ── Chrome bar (same style as slide deck) ──────────── */
+  .deck__chrome {
+    position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%);
+    display: flex; align-items: center; gap: 0.35rem;
+    background: rgba(10,10,10,0.85); backdrop-filter: blur(10px);
+    border: 1px solid var(--dm-border-subtle); border-radius: var(--dm-radius-pill);
+    padding: 0.45rem 0.75rem; z-index: 1000;
+  }
+  [data-theme="light"] .deck__chrome { background: rgba(255,255,255,0.9); }
+  .deck__counter { display: inline-flex; align-items: center; justify-content: center; min-width: 2.1rem; height: 2.1rem; padding: 0 0.6rem; border: 1px solid var(--dm-border-subtle); border-radius: var(--dm-radius-pill); font-variant-numeric: tabular-nums; font-size: 0.72rem; font-weight: 600; color: var(--dm-muted); margin: 0 0.4rem; }
+  .deck__btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 2.1rem; height: 2.1rem; padding: 0 0.6rem;
+    border: 1px solid var(--dm-border-subtle); border-radius: var(--dm-radius-pill);
+    background: transparent; color: #fafafa; cursor: pointer;
+    font-family: inherit; font-size: 0.72rem; font-weight: 600;
+    transition: background 220ms ease, border-color 220ms ease, color 220ms ease,
+                transform 220ms cubic-bezier(0.22,1,0.36,1);
+  }
+  [data-theme="light"] .deck__btn { color: #0a0a0a; }
+  .deck__btn:hover {
+    background: var(--dm-surface-elevated); border-color: var(--dm-border);
+    transform: scale(1.06);
+  }
+  .deck__btn:active { transform: scale(0.96); }
+  .deck__btn[aria-pressed="true"] { background: var(--dm-v-electric); border-color: var(--dm-v-electric); color: #fff; }
+  .deck__btn--icon { min-width: 2.1rem; padding: 0; }
+  .deck__btn svg { display: block; width: 1rem; height: 1rem; }
+  .deck__divider { width: 1px; height: 1.6rem; background: var(--dm-border-subtle); margin: 0 0.15rem; }
+</style>
+</head>
+<body>
+
+<!-- SVG icon symbols -->
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol fill="none" id="i-arrow-left" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></symbol>
+  <symbol fill="none" id="i-arrow-right" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+  <symbol fill="none" id="i-sun" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></symbol>
+  <symbol fill="none" id="i-moon" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></symbol>
+  <symbol fill="none" id="i-maximize" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
+</svg>
+
+<iframe id="viewer" src="slides/index_en.html"></iframe>
+
+<!-- Chrome bar -->
+<div class="deck__chrome">
+  <button aria-label="EN" class="deck__btn" data-lang="en" aria-pressed="true">EN</button>
+  <button aria-label="FR" class="deck__btn" data-lang="fr" aria-pressed="false">FR</button>
+  <span class="deck__divider"></span>
+  <button aria-label="Previous" class="deck__btn deck__btn--icon" id="btn-prev">
+    <svg><use href="#i-arrow-left"></use></svg>
+  </button>
+  <span class="deck__counter" id="counter">01 / 22</span>
+  <button aria-label="Next" class="deck__btn deck__btn--icon" id="btn-next">
+    <svg><use href="#i-arrow-right"></use></svg>
+  </button>
+  <span class="deck__divider"></span>
+  <button aria-label="Theme" class="deck__btn deck__btn--icon" id="btn-theme">
+    <svg id="theme-icon"><use href="#i-sun"></use></svg>
+  </button>
+  <button aria-label="Fullscreen" class="deck__btn deck__btn--icon" id="btn-fill">
+    <svg><use href="#i-maximize"></use></svg>
+  </button>
+</div>
+
+<script>
+(function () {
+  const viewer = document.getElementById('viewer');
+  const counter = document.getElementById('counter');
+  const btnPrev = document.getElementById('btn-prev');
+  const btnNext = document.getElementById('btn-next');
+  const btnTheme = document.getElementById('btn-theme');
+  const btnFill = document.getElementById('btn-fill');
+  const themeIcon = document.getElementById('theme-icon');
+
+  let currentLang = 'en';
+  let dark = true;
+  let currentSlide = 0;
+  let slideCount = 22;
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  // ── Load iframe ──────────────────────────────────────
+  function loadDeck(isSwap) {
+    if (isSwap) viewer.classList.add('is-swapping');
+    const doLoad = () => {
+      const file = currentLang === 'en' ? 'slides/index_en.html' : 'slides/index_fr.html';
+      viewer.src = file + '?t=' + Date.now();
+      viewer.addEventListener('load', onDeckLoad, { once: true });
+    };
+    if (isSwap) setTimeout(doLoad, 300); else doLoad();
+  }
+
+  function onDeckLoad() {
+    try {
+      const doc = viewer.contentDocument;
+      if (!doc) { viewer.classList.remove('is-swapping'); return; }
+
+      // Sync theme
+      doc.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+
+      // Get slide count
+      const slides = doc.querySelectorAll('.slide');
+      slideCount = slides.length;
+
+      // Hide chrome widget inside iframe
+      const chrome = doc.querySelector('.deck__chrome');
+      if (chrome) chrome.style.display = 'none';
+
+      // Go to current slide
+      goToSlide(currentSlide);
+
+      // Wait for deck's internal JS to finish initializing before fading in
+      setTimeout(() => {
+        viewer.classList.remove('is-swapping');
+        // Remove focus from iframe so keyboard events go to the viewer
+        viewer.blur();
+        window.focus();
+      }, 400);
+    } catch (e) {
+      console.warn('Cannot access iframe content:', e);
+      viewer.classList.remove('is-swapping');
+    }
+  }
+
+  // ── Slide navigation ─────────────────────────────────
+  function goToSlide(idx) {
+    try {
+      const doc = viewer.contentDocument;
+      if (!doc) return;
+
+      const slides = doc.querySelectorAll('.slide');
+      if (idx < 0) idx = 0;
+      if (idx >= slides.length) idx = slides.length - 1;
+
+      slides.forEach((s, j) => {
+        s.classList.toggle('is-active', j === idx);
+        s.setAttribute('aria-hidden', j === idx ? 'false' : 'true');
+      });
+
+      currentSlide = idx;
+      counter.textContent = pad(currentSlide + 1) + ' / ' + pad(slideCount);
+      btnPrev.disabled = currentSlide <= 0;
+      btnNext.disabled = currentSlide >= slideCount - 1;
+    } catch (e) {
+      console.warn('Cannot navigate slides:', e);
+    }
+  }
+
+  function nextSlide() { goToSlide(currentSlide + 1); }
+  function prevSlide() { goToSlide(currentSlide - 1); }
+
+  // ── Language switching ───────────────────────────────
+  document.querySelectorAll('[data-lang]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lang = btn.dataset.lang;
+      if (lang === currentLang) return;
+      currentLang = lang;
+      currentSlide = 0;
+      document.querySelectorAll('[data-lang]').forEach(b => {
+        b.setAttribute('aria-pressed', b.dataset.lang === lang ? 'true' : 'false');
+      });
+      loadDeck(true);
+    });
+  });
+
+  // ── Theme switching ──────────────────────────────────
+  btnTheme.addEventListener('click', () => {
+    dark = !dark;
+    const theme = dark ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    themeIcon.querySelector('use').setAttribute('href', dark ? '#i-sun' : '#i-moon');
+    try {
+      const doc = viewer.contentDocument;
+      if (!doc) { console.warn('No contentDocument'); return; }
+      const html = doc.documentElement;
+      html.setAttribute('data-theme', theme);
+      // Also update the internal deck's theme icon if present
+      const internalIcon = doc.getElementById('theme-icon');
+      if (internalIcon) internalIcon.querySelector('use').setAttribute('href', dark ? '#i-sun' : '#i-moon');
+      // Force reapply by toggling a class
+      html.offsetHeight;
+    } catch (e) {
+      console.warn('Theme switch failed:', e);
+    }
+  });
+
+  // ── Navigation buttons ───────────────────────────────
+  btnPrev.addEventListener('click', prevSlide);
+  btnNext.addEventListener('click', nextSlide);
+
+  // ── Fullscreen ───────────────────────────────────────
+  btnFill.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  // ── Keyboard navigation ──────────────────────────────
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+    if (e.key === 'f' || e.key === 'F') { btnFill.click(); }
+    if (e.key === 't' || e.key === 'T') { btnTheme.click(); }
+  });
+
+  // ── Init ─────────────────────────────────────────────
+  loadDeck(false);
+})();
+</script>
+</body>
+</html>
