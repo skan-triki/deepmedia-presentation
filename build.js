@@ -3,10 +3,10 @@
  * build.js — Assembles modular slide fragments into final deck HTML files.
  *
  * Source structure (src/):
- *   src/css/deck-en.css, deck-fr.css   — CSS per language
- *   src/js/deck-en.js, deck-fr.js      — JS per language
- *   src/svg/symbols-en.svg, symbols-fr.svg — SVG sprites per language
- *   src/templates/shell-en.html, shell-fr.html — HTML skeleton with placeholders
+ *   src/css/deck.css                  — shared CSS
+ *   src/js/deck.js                     — shared JS
+ *   src/svg/symbols.svg                — shared SVG sprites
+ *   src/templates/shell.html           — HTML skeleton with placeholders
  *   src/en/slide-01.html … slide-22.html  — individual slide fragments
  *   src/fr/slide-01.html … slide-22.html  — individual slide fragments
  *   src/titles.json                     — page titles per language
@@ -40,13 +40,16 @@ function readSlides(lang) {
 
 // ── Build ────────────────────────────────────────────
 function buildLang(lang) {
-  const shell    = read(`templates/shell-${lang}.html`);
-  const css      = read(`css/deck-${lang}.css`);
-  const js       = read(`js/deck-${lang}.js`);
-  const svg      = read(`svg/symbols-${lang}.svg`);
+  const titles   = JSON.parse(read('titles.json'));
+  const shell    = read(`templates/shell.html`);
+  const css      = read(`css/deck.css`);
+  const js       = read(`js/deck.js`);
+  const svg      = read(`svg/symbols.svg`);
   const slides   = readSlides(lang);
 
   let html = shell
+    .replace('{{LANG}}',    lang)
+    .replace('{{TITLE}}',   titles[lang])
     .replace('{{CSS}}',     css)
     .replace('{{SVG}}',     svg)
     .replace('{{SLIDES}}',  slides)
