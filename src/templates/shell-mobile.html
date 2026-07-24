@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html data-lang="{{LANG}}" data-theme="dark" lang="{{LANG}}" class="mobile-linear">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport"/>
+<title>{{TITLE}} — Mobile</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
+{{CSS}}
+</style>
+</head>
+<body class="mode-mobile mobile-linear">
+<!-- ── SVG sprite ──────────────────────────────────────── -->
+{{SVG}}
+<!-- ── Animated background ─────────────────────────────── -->
+<div aria-hidden="true" class="deck__bg deck__bg--mobile">
+  <div class="deck__bg-blob deck__bg-blob--1"></div>
+  <div class="deck__bg-blob deck__bg-blob--2"></div>
+  <div class="deck__bg-blob deck__bg-blob--3"></div>
+  <div class="deck__bg-blob deck__bg-blob--4"></div>
+  <div class="deck__bg-blob deck__bg-blob--5"></div>
+</div>
+<!-- ── Mobile page: vertical linear scrolling ──────────── -->
+<main class="mobile-page" id="mobile-page">
+{{SLIDES}}
+</main>
+
+<!-- Mobile persistent bottom bar: language + theme -->
+<div class="deck__mobile-bar" aria-label="Mobile controls">
+  <div class="deck__mobile-bar-group">
+    <a href="index_en.html" class="deck__mobile-bar-btn deck__mobile-bar-btn--text" aria-label="English">EN</a>
+    <a href="index_fr.html" class="deck__mobile-bar-btn deck__mobile-bar-btn--text" aria-label="Français">FR</a>
+  </div>
+  <button class="deck__mobile-bar-btn" data-action="theme" aria-label="Toggle theme">
+    <svg id="theme-icon" width="20" height="20"><use href="#i-sun"/></svg>
+  </button>
+</div>
+
+<script>
+{{JS}}
+</script>
+</body>
+</html>

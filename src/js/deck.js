@@ -1,7 +1,8 @@
 (() => {
       const slides  = Array.from(document.querySelectorAll('.slide'));
       const counter = document.getElementById('counter');
-      const slidesContainer = document.querySelector('.deck__slides');
+      const slidesContainer = document.querySelector('.deck__slides, .mobile-page');
+      const isLinearMobile = document.body.classList.contains('mobile-linear');
       let current   = 0;
 
       function isMobile() {
@@ -13,8 +14,14 @@
         if (i >= slides.length) i = slides.length - 1;
 
         if (isMobile() && slidesContainer) {
-          // Mobile: scroll to target slide
-          slidesContainer.scrollTo({ top: slides[i].offsetTop, behavior: 'smooth' });
+          // Mobile: scroll to target section/slide smoothly
+          if (i === 0) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            const rect = slides[i].getBoundingClientRect();
+            const target = window.scrollY + rect.top;
+            window.scrollTo({ top: target, behavior: 'smooth' });
+          }
           updateState(i);
         } else {
           // Desktop: toggle visibility (wrap around)
@@ -38,7 +45,7 @@
           s.setAttribute('aria-hidden', idx === i ? 'false' : 'true');
         });
         current = i;
-        counter.textContent = String(i + 1).padStart(2, '0') + ' / ' + slides.length;
+        if (counter) counter.textContent = String(i + 1).padStart(2, '0') + ' / ' + slides.length;
 
         // Update dynamic badge number on active slide
         const numEl = slides[i].querySelector('.slide__number');
@@ -47,6 +54,13 @@
             '<span class="slide__number-sep">/</span>' +
             '<span>' + String(slides.length).padStart(2, '0') + '</span>';
         }
+
+        // Highlight current language in mobile bottom bar
+        const lang = document.documentElement.getAttribute('data-lang') || 'en';
+        document.querySelectorAll('.deck__mobile-bar-btn--text').forEach(btn => {
+          const href = btn.getAttribute('href') || '';
+          btn.setAttribute('aria-pressed', href.endsWith(`index_${lang}.html`) ? 'true' : 'false');
+        });
       }
 
       // ── IntersectionObserver: track current slide on scroll (mobile) ──
@@ -61,7 +75,7 @@
               }
             }
           });
-        }, { threshold: [0.55], root: slidesContainer });
+        }, { threshold: [0.55], root: isLinearMobile ? null : slidesContainer });
         slides.forEach(s => observer.observe(s));
       }
 
@@ -82,11 +96,23 @@
 
       const themeBtn  = document.querySelector('[data-action="theme"]');
       const themeIcon = document.getElementById('theme-icon');
-      let dark = true;
-      themeBtn?.addEventListener('click', () => {
-        dark = !dark;
-        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-        themeIcon.querySelector('use').setAttribute('href', dark ? '#i-sun' : '#i-moon');
+      let dark = document.documentElement.getAttribute('data-theme') !== 'light';
+      function setTheme(isDark) {
+        dark = isDark;
+        const theme = dark ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        const use = themeIcon?.querySelector('use');
+        if (use) use.setAttribute('href', dark ? '#i-sun' : '#i-moon');
+      }
+      themeBtn?.addEventListener('click', () => setTheme(!dark));
+      window.addEventListener('message', (e) => {
+        if (!e.data) return;
+        if (e.data.type === 'theme') {
+          setTheme(e.data.theme !== 'light');
+        }
+        if (e.data.type === 'nav' && typeof e.data.index === 'number') {
+          show(e.data.index);
+        }
       });
 
       show(0);

@@ -23,7 +23,6 @@ const path = require('path');
 
 const ROOT   = __dirname;
 const SRC    = path.join(ROOT, 'src');
-const OUT    = path.join(ROOT, 'slides');
 
 // ── Helpers ──────────────────────────────────────────
 function read(rel) {
@@ -39,31 +38,34 @@ function readSlides(lang) {
 }
 
 // ── Build ────────────────────────────────────────────
-function buildLang(lang) {
+function buildLang(lang, { template, outDir }) {
   const titles   = JSON.parse(read('titles.json'));
-  const shell    = read(`templates/shell.html`);
+  const shell    = read(`templates/${template}.html`);
   const css      = read(`css/deck.css`);
   const js       = read(`js/deck.js`);
   const svg      = read(`svg/symbols.svg`);
   const slides   = readSlides(lang);
 
   let html = shell
-    .replace('{{LANG}}',    lang)
-    .replace('{{TITLE}}',   titles[lang])
-    .replace('{{CSS}}',     css)
-    .replace('{{SVG}}',     svg)
-    .replace('{{SLIDES}}',  slides)
-    .replace('{{JS}}',      js);
+    .replace(/\{\{LANG\}\}/g,    lang)
+    .replace('{{TITLE}}',          titles[lang])
+    .replace('{{CSS}}',            css)
+    .replace('{{SVG}}',            svg)
+    .replace('{{SLIDES}}',         slides)
+    .replace('{{JS}}',             js);
 
   // Normalize to CRLF for Windows consistency
   html = html.replace(/\r?\n/g, '\r\n');
 
-  const outFile = path.join(OUT, `index_${lang}.html`);
+  fs.mkdirSync(path.join(ROOT, outDir), { recursive: true });
+  const outFile = path.join(ROOT, outDir, `index_${lang}.html`);
   fs.writeFileSync(outFile, html, 'utf8');
   console.log(`✓ Built ${outFile}`);
 }
 
 // ── Run ──────────────────────────────────────────────
-buildLang('en');
-buildLang('fr');
-console.log('\nDone. Output in slides/');
+buildLang('en', { template: 'shell',      outDir: 'slides' });
+buildLang('fr', { template: 'shell',      outDir: 'slides' });
+buildLang('en', { template: 'shell-mobile', outDir: 'mobile' });
+buildLang('fr', { template: 'shell-mobile', outDir: 'mobile' });
+console.log('\nDone. Output in slides/ and mobile/');
