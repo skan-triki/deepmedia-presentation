@@ -161,4 +161,26 @@
       // ── Expose to parent window for cross-iframe navigation ──
       window.__deckShow = show;
       window.__deckIsMobile = isMobile;
+
+      // ── Fullscreen image zoom (direct mobile view, no parent iframe) ──
+      if (window.self === window.top) {
+        const imgOverlay = document.createElement('div');
+        imgOverlay.className = 'img-overlay';
+        imgOverlay.innerHTML = '<img/><button class="img-overlay__close" aria-label="Close">✕</button>';
+        document.body.appendChild(imgOverlay);
+        const imgOverlayImg = imgOverlay.querySelector('img');
+        imgOverlay.addEventListener('click', (e) => { if (e.target !== imgOverlayImg) imgOverlay.classList.remove('is-open'); });
+        imgOverlay.querySelector('.img-overlay__close').addEventListener('click', (e) => { e.stopPropagation(); imgOverlay.classList.remove('is-open'); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') imgOverlay.classList.remove('is-open'); });
+
+        document.querySelectorAll('.slide img').forEach(img => {
+          if (img.closest('.slide__brand')) return;
+          img.style.cursor = 'zoom-in';
+          img.addEventListener('click', (e) => {
+            e.stopPropagation();
+            imgOverlayImg.src = img.src;
+            imgOverlay.classList.add('is-open');
+          });
+        });
+      }
     })();
