@@ -1006,6 +1006,86 @@
       /* Badges */
       .slide__badge { font-size: 0.78rem; padding: 0.35rem 0.9rem; }
     }
+
+    /* ── Portrait final polish ───────────────────────── */
+    @media (orientation: portrait) {
+      .slide__content {
+        flex: 0 1 auto !important;
+        justify-content: flex-start !important;
+        min-height: 0 !important;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+      .slide--center .slide__content { justify-content: flex-start !important; align-items: center; }
+      .slide--with-media .slide__content { justify-content: flex-start !important; gap: 1.2rem; }
+      .slide--screenshot .slide__content {
+        flex: 1 1 0 !important;
+        justify-content: center !important;
+        min-height: 100% !important;
+      }
+      .slide__content > * { flex-shrink: 0; min-width: 0; }
+      .slide__media { min-height: 0; }
+      .slide__media img { max-width: 100%; height: auto; max-height: 520px; object-fit: contain; }
+      .slide__media--dual img { max-height: 340px; }
+      .slide__media-text { display: flex; flex-direction: column; gap: 1rem; justify-content: flex-start; }
+      .slide__timeline { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+      .slide__tl-step { flex-direction: row; align-items: center; min-width: 0; }
+      .slide__tl-step > * { min-width: 0; }
+      .slide__tl-label, .slide__tl-sub { overflow: hidden; text-overflow: ellipsis; }
+      .slide__content > * + * { margin-top: 0; }
+      .slide__title { margin-bottom: 0.4rem; }
+      .slide__lead { margin-bottom: 0.5rem; }
+      .slide__problem { margin-bottom: 0.6rem; }
+      .slide__value { margin-top: 0.6rem; }
+      .slide__cards, .slide__module-grid, .slide__work-grid, .slide__stats, .slide__compare, .slide__timeline { margin-top: 0.6rem; }
+      .slide__cards, .slide__module-grid, .slide__work-grid, .slide__stats, .slide__compare, .slide__timeline, .slide__cols, .slide__metrics, .slide__badges { max-width: 100%; min-width: 0; overflow-x: hidden; }
+      .slide__card { display: flex; flex-direction: row; align-items: flex-start; gap: 0.8rem; padding: 0.9rem 1.1rem; }
+      .slide__card-icon { flex-shrink: 0; width: 1.4rem; height: 1.4rem; }
+      .slide__card-title { font-size: 0.92rem; margin: 0 0 0.15rem; }
+      .slide__card-body { font-size: 0.8rem; line-height: 1.35; }
+      .slide__module-node { padding: 0.9rem; gap: 0.6rem; }
+      .slide__module-node-icon { width: 1.5rem; height: 1.5rem; }
+      .slide__module-node-name { font-size: 0.9rem; }
+      .slide__module-node-desc { font-size: 0.78rem; }
+      .slide__work-step { padding: 1rem; gap: 0.8rem; }
+      .slide__step-num { font-size: 0.7rem; }
+      .slide__work-title { font-size: 0.95rem; }
+      .slide__work-body { font-size: 0.8rem; }
+      .slide__stat { padding: 1rem; }
+      .slide__stat-value { font-size: 1.6rem; }
+      .slide__stat-label { font-size: 0.8rem; }
+      .slide__compare-col { padding: 1rem; }
+      .slide__compare-title { font-size: 0.95rem; }
+      .slide__compare-list li { font-size: 0.82rem; }
+      .slide__problem { font-size: 0.88rem; padding: 0.7rem 1rem; }
+      .slide__value { font-size: 0.88rem; padding: 0.7rem 1rem; }
+    }
+    @media (orientation: portrait) and (max-width: 480px) {
+      .slide { padding: 1.75rem 1.1rem 3.25rem; }
+      .slide__brand-logo { width: 4.5rem; }
+      .slide__number { font-size: 0.7rem; }
+      .slide__kicker { font-size: 0.7rem; }
+      .slide__title { font-size: 1.7rem; line-height: 1.1; }
+      .slide--with-media .slide__title { font-size: 1.55rem; }
+      .slide__lead { font-size: 0.95rem; }
+      .slide--with-media .slide__lead { font-size: 0.88rem; }
+      .slide__subtitle { font-size: 1.15rem; }
+      .slide__promise { font-size: 2.6rem; }
+      .slide__media img { max-height: 320px; }
+      .slide__media--dual img { max-height: 200px; }
+      .slide__module-grid { grid-template-columns: 1fr !important; gap: 0.7rem; }
+      .slide__cards { gap: 0.5rem; }
+      .slide__card { padding: 0.75rem 0.9rem; }
+      .slide__work-grid { gap: 0.6rem; }
+      .slide__stats { grid-template-columns: 1fr; gap: 0.7rem; }
+      .slide__compare-list { gap: 0.35rem; }
+      .slide__timeline { grid-template-columns: 1fr; gap: 0.6rem; }
+      .slide__tl-label { font-size: 0.82rem; }
+      .slide__tl-sub { font-size: 0.68rem; }
+      .slide__stat-value { font-size: 1.4rem; }
+      .slide__stat-label { font-size: 0.75rem; }
+      .slide__badge { font-size: 0.7rem; padding: 0.25rem 0.6rem; }
+    }
   </style>
 </head>
 <body>
