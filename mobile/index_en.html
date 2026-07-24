@@ -1392,14 +1392,19 @@
                   background-color 520ms ease;
     }
     body.mode-mobile .deck__mobile-bar-btn:hover,
-    body.mode-mobile .deck__mobile-bar-logo:hover,
     body.mode-mobile .slide__badge:hover {
       transform: scale(1.03);
     }
+    body.mode-mobile .deck__mobile-bar-logo:hover {
+      transform: translateX(-50%) scale(1.03);
+    }
     body.mode-mobile .deck__mobile-bar-btn:active,
-    body.mode-mobile .deck__mobile-bar-logo:active,
     body.mode-mobile .slide__badge:active {
       transform: scale(0.97);
+      transition-duration: 260ms;
+    }
+    body.mode-mobile .deck__mobile-bar-logo:active {
+      transform: translateX(-50%) scale(0.97);
       transition-duration: 260ms;
     }
 
