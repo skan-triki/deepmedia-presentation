@@ -1373,7 +1373,26 @@
     body.mode-mobile .slide__compare-col:active,
     body.mode-mobile .slide__tl-step:active {
       transform: scale(0.99);
-      transition-duration: 120ms;
+      transition-duration: 260ms;
+    }
+    body.mode-mobile .deck__mobile-bar-btn,
+    body.mode-mobile .deck__mobile-bar-logo,
+    body.mode-mobile .slide__badge {
+      transition: transform 520ms cubic-bezier(0.22,1,0.36,1),
+                  opacity 520ms ease,
+                  border-color 520ms ease,
+                  background-color 520ms ease;
+    }
+    body.mode-mobile .deck__mobile-bar-btn:hover,
+    body.mode-mobile .deck__mobile-bar-logo:hover,
+    body.mode-mobile .slide__badge:hover {
+      transform: scale(1.03);
+    }
+    body.mode-mobile .deck__mobile-bar-btn:active,
+    body.mode-mobile .deck__mobile-bar-logo:active,
+    body.mode-mobile .slide__badge:active {
+      transform: scale(0.97);
+      transition-duration: 260ms;
     }
 
     /* Compare */
