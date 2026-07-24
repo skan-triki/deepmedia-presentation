@@ -797,7 +797,7 @@
     .slide__media img, .slide--screenshot img { cursor: zoom-in; }
 
     /* ── Portrait / Mobile responsive (9:16) ──────────── */
-    @media (orientation: portrait) {
+    @media (orientation: portrait) and (min-width: 769px) {
       .deck__fit {
         width: 1080px;
         height: 1920px;
@@ -1009,7 +1009,7 @@
     }
 
     /* ── Portrait final polish ───────────────────────── */
-    @media (orientation: portrait) {
+    @media (orientation: portrait) and (min-width: 769px) {
       .slide__content {
         flex: 0 1 auto !important;
         justify-content: flex-start !important;
@@ -1061,7 +1061,7 @@
       .slide__problem { font-size: 0.88rem; padding: 0.7rem 1rem; }
       .slide__value { font-size: 0.88rem; padding: 0.7rem 1rem; }
     }
-    @media (orientation: portrait) and (max-width: 480px) {
+    @media (orientation: portrait) and (min-width: 769px) and (max-width: 480px) {
       .slide { padding: 1.75rem 1.1rem 3.25rem; }
       .slide__brand-logo { width: 4.5rem; }
       .slide__number { font-size: 0.7rem; }
@@ -1094,7 +1094,7 @@
     .slide__brand-link:active { transform: scale(0.98); opacity: 0.7; }
 
     /* ── Final responsive refinements ───────────────── */
-    @media (orientation: portrait) {
+    @media (orientation: portrait) and (min-width: 769px) {
       /* Flex/grid overflow prevention */
       .slide__content, .slide__media-text, .slide__media, .slide__cards,
       .slide__module-grid, .slide__work-grid, .slide__stats, .slide__compare,
@@ -1143,7 +1143,7 @@
       }
       .slide__brand-link:active { transform: scale(0.97) !important; opacity: 0.75 !important; }
     }
-    @media (orientation: portrait) and (max-width: 480px) {
+    @media (orientation: portrait) and (min-width: 769px) and (max-width: 480px) {
       .slide { padding: 1.4rem 0.95rem 2.8rem !important; }
       .slide__title { font-size: 1.45rem !important; line-height: 1.08 !important; }
       .slide__subtitle { font-size: 0.98rem !important; }
