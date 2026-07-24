@@ -162,25 +162,30 @@
       window.__deckShow = show;
       window.__deckIsMobile = isMobile;
 
-      // ── Fullscreen image zoom (direct mobile view, no parent iframe) ──
+      // ── Fullscreen image zoom ──
+      let imgOverlay = null, imgOverlayImg = null;
       if (window.self === window.top) {
-        const imgOverlay = document.createElement('div');
+        imgOverlay = document.createElement('div');
         imgOverlay.className = 'img-overlay';
         imgOverlay.innerHTML = '<img/><button class="img-overlay__close" aria-label="Close">✕</button>';
         document.body.appendChild(imgOverlay);
-        const imgOverlayImg = imgOverlay.querySelector('img');
+        imgOverlayImg = imgOverlay.querySelector('img');
         imgOverlay.addEventListener('click', (e) => { if (e.target !== imgOverlayImg) imgOverlay.classList.remove('is-open'); });
         imgOverlay.querySelector('.img-overlay__close').addEventListener('click', (e) => { e.stopPropagation(); imgOverlay.classList.remove('is-open'); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') imgOverlay.classList.remove('is-open'); });
+      }
 
-        document.querySelectorAll('.slide img').forEach(img => {
-          if (img.closest('.slide__brand')) return;
-          img.style.cursor = 'zoom-in';
-          img.addEventListener('click', (e) => {
-            e.stopPropagation();
+      document.querySelectorAll('.slide img').forEach(img => {
+        if (img.closest('.slide__brand')) return;
+        img.style.cursor = 'zoom-in';
+        img.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (window.self !== window.top) {
+            window.parent.postMessage({ type: 'zoom', src: img.src }, '*');
+          } else if (imgOverlay && imgOverlayImg) {
             imgOverlayImg.src = img.src;
             imgOverlay.classList.add('is-open');
-          });
+          }
         });
-      }
+      });
     })();

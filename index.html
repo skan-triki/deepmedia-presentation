@@ -257,9 +257,6 @@
       const chrome = doc.querySelector('.deck__chrome');
       if (chrome) chrome.style.display = 'none';
 
-      // Attach fullscreen image zoom
-      attachImageZoom(doc);
-
       // Go to current slide
       goToSlide(currentSlide);
 
@@ -398,17 +395,13 @@
   overlay.querySelector('.img-overlay__close').addEventListener('click', (e) => { e.stopPropagation(); overlay.classList.remove('is-open'); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') overlay.classList.remove('is-open'); });
 
-  function attachImageZoom(doc) {
-    doc.querySelectorAll('.slide img').forEach(img => {
-      if (img.closest('.slide__brand')) return; // skip brand/logo images
-      img.style.cursor = 'zoom-in';
-      img.addEventListener('click', (e) => {
-        e.stopPropagation();
-        overlayImg.src = img.src;
-        overlay.classList.add('is-open');
-      });
-    });
-  }
+  // Listen for zoom requests from iframe
+  window.addEventListener('message', (e) => {
+    if (e.data?.type === 'zoom' && e.data.src) {
+      overlayImg.src = e.data.src;
+      overlay.classList.add('is-open');
+    }
+  });
 
   // ── Touch / Swipe navigation ─────────────────────────
   let touchStartX = 0, touchStartY = 0;
