@@ -1746,20 +1746,6 @@
       }
       scaleDeck();
       window.addEventListener('resize', scaleDeck);
-      // ── Fullscreen image viewer ──
-      const overlay = document.createElement('div');
-      overlay.className = 'img-overlay';
-      overlay.innerHTML = '<img/>';
-      document.body.appendChild(overlay);
-      const overlayImg = overlay.querySelector('img');
-      overlay.addEventListener('click', () => overlay.classList.remove('is-open'));
-      document.addEventListener('keydown', e => { if (e.key === 'Escape') overlay.classList.remove('is-open'); });
-      document.querySelectorAll('.slide__media img, .slide--screenshot img').forEach(img => {
-        img.addEventListener('click', () => {
-          overlayImg.src = img.src;
-          overlay.classList.add('is-open');
-        });
-      });
     })();
   </script>
 </body>
