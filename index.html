@@ -28,12 +28,30 @@
     --dm-v-electric: #2a6bff;
   }
 
+  :root {
+    --chrome-height: 3.6rem;
+    --chrome-bottom: 1rem;
+  }
+  @media (orientation: portrait) {
+    :root { --chrome-height: 3.2rem; }
+  }
+  @media (orientation: portrait) and (max-width: 380px) {
+    :root { --chrome-height: 2.8rem; }
+  }
+  @media (orientation: landscape) and (max-height: 500px) {
+    :root { --chrome-height: 2.7rem; }
+  }
+
   #viewer {
     position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    bottom: calc(1rem + var(--chrome-height));
+    width: auto;
+    height: auto;
     border: none;
+    border-radius: 14px;
     display: block;
     transition: opacity 300ms ease;
   }
@@ -70,7 +88,6 @@
   .deck__divider { width: 1px; height: 1.6rem; background: var(--dm-border-subtle); margin: 0 0.15rem; }
 
   @media (orientation: portrait) {
-    body { --chrome-height: 3.2rem; }
     .deck__chrome {
       gap: 0.3rem;
       padding: 0.35rem 0.6rem;
@@ -88,7 +105,6 @@
     .deck__divider { height: 1.2rem; }
   }
   @media (orientation: portrait) and (max-width: 380px) {
-    body { --chrome-height: 2.8rem; }
     .deck__chrome { gap: 0.2rem; padding: 0.25rem 0.45rem; }
     .deck__btn { min-width: 1.9rem; height: 1.9rem; font-size: 0.65rem; }
     .deck__btn--icon { min-width: 1.9rem; }
@@ -97,7 +113,6 @@
     .deck__divider { height: 1.1rem; }
   }
   @media (orientation: landscape) and (max-height: 500px) {
-    body { --chrome-height: 2.7rem; }
     .deck__chrome { padding: 0.25rem 0.5rem; gap: 0.25rem; }
     .deck__btn { min-width: 2rem; height: 2rem; font-size: 0.7rem; }
     .deck__btn svg { width: 0.95rem; height: 0.95rem; }
