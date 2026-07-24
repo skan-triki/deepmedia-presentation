@@ -1528,6 +1528,13 @@
     .deck__mobile-bar-btn--text[href$="index_en.html"],
     .deck__mobile-bar-btn--text[href$="index_fr.html"] { text-transform: uppercase; }
     .deck__mobile-bar-btn[aria-pressed="true"] { background: var(--dm-v-electric); border-color: var(--dm-v-electric); color: #000; }
+    .deck__mobile-bar-logo {
+      display: inline-flex; align-items: center; justify-content: center;
+      text-decoration: none; color: var(--dm-ink);
+      position: absolute; left: 50%; transform: translateX(-50%);
+    }
+    .deck__mobile-bar-logo svg { width: auto; height: 1.25rem; display: block; }
+    [data-theme="light"] .deck__mobile-bar-logo svg { filter: invert(1) hue-rotate(180deg) brightness(1.15); }
 </style>
 </head>
 <body class="mode-mobile mobile-linear">
@@ -2469,12 +2476,15 @@
         </section>
 </main>
 
-<!-- Mobile persistent bottom bar: language + theme -->
+<!-- Mobile persistent bottom bar: language + logo + theme -->
 <div class="deck__mobile-bar" aria-label="Mobile controls">
-  <div class="deck__mobile-bar-group">
+  <div class="deck__mobile-bar-group deck__mobile-bar-group--left">
     <a href="index_en.html" class="deck__mobile-bar-btn deck__mobile-bar-btn--text" aria-label="English">EN</a>
     <a href="index_fr.html" class="deck__mobile-bar-btn deck__mobile-bar-btn--text" aria-label="Français">FR</a>
   </div>
+  <a href="https://deepmedia.app" class="deck__mobile-bar-logo" aria-label="DeepMedia">
+    <svg width="96" height="20" viewBox="0 0 747.21 151.25" aria-hidden="true"><use href="#dm-logo"/></svg>
+  </a>
   <button class="deck__mobile-bar-btn" data-action="theme" aria-label="Toggle theme">
     <svg id="theme-icon" width="20" height="20"><use href="#i-sun"/></svg>
   </button>

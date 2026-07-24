@@ -28,12 +28,15 @@
 {{SLIDES}}
 </main>
 
-<!-- Mobile persistent bottom bar: language + theme -->
+<!-- Mobile persistent bottom bar: language + logo + theme -->
 <div class="deck__mobile-bar" aria-label="Mobile controls">
-  <div class="deck__mobile-bar-group">
+  <div class="deck__mobile-bar-group deck__mobile-bar-group--left">
     <a href="index_en.html" class="deck__mobile-bar-btn deck__mobile-bar-btn--text" aria-label="English">EN</a>
     <a href="index_fr.html" class="deck__mobile-bar-btn deck__mobile-bar-btn--text" aria-label="Français">FR</a>
   </div>
+  <a href="https://deepmedia.app" class="deck__mobile-bar-logo" aria-label="DeepMedia">
+    <svg width="96" height="20" viewBox="0 0 747.21 151.25" aria-hidden="true"><use href="#dm-logo"/></svg>
+  </a>
   <button class="deck__mobile-bar-btn" data-action="theme" aria-label="Toggle theme">
     <svg id="theme-icon" width="20" height="20"><use href="#i-sun"/></svg>
   </button>
