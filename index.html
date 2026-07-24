@@ -217,8 +217,8 @@
     return portrait && window.innerWidth <= 768;
   }
   function updateMobileClass() {
-    const isMobile = (window.innerHeight > window.innerWidth) && (window.innerWidth <= 768);
-    document.documentElement.classList.toggle('is-mobile-viewport', isMobile);
+    const min = Math.min(window.innerWidth, window.innerHeight);
+    document.documentElement.classList.toggle('is-mobile-viewport', min <= 480);
   }
   function deckUrl(lang) {
     const folder = isMobileViewport() ? 'mobile' : 'slides';

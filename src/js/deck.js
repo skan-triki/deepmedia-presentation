@@ -128,6 +128,7 @@
         return Math.ceil(rect.height + bottom + bottom);
       }
       function scaleDeck() {
+        if (!fit) return;
         const portrait = window.innerHeight > window.innerWidth;
         const mobile   = portrait && window.innerWidth <= 768;
 
