@@ -2602,6 +2602,14 @@
 
       // ── Scale fixed-size deck to fit viewport ──
       const fit = document.querySelector('.deck__fit');
+      const deckChrome = document.querySelector('.deck__chrome');
+      function chromeSpace() {
+        if (!deckChrome) return 0;
+        const rect = deckChrome.getBoundingClientRect();
+        const bottom = parseFloat(getComputedStyle(deckChrome).bottom) || 0;
+        // Chrome occupies from bottom offset up to its top
+        return Math.ceil(rect.height + bottom + bottom);
+      }
       function scaleDeck() {
         const portrait = window.innerHeight > window.innerWidth;
         const mobile   = portrait && window.innerWidth <= 768;
@@ -2615,7 +2623,7 @@
           fit.style.boxShadow    = 'none';
           document.body.classList.add('mode-mobile');
         } else {
-          // Desktop / tablet: scale fixed-ratio deck
+          // Desktop / tablet: scale fixed-ratio deck, leaving room for chrome
           fit.style.width        = '';
           fit.style.height       = '';
           fit.style.borderRadius = '';
@@ -2623,8 +2631,9 @@
           document.body.classList.remove('mode-mobile');
           const baseW = portrait ? 1080 : 1920;
           const baseH = portrait ? 1920 : 1080;
+          const availH = Math.max(window.innerHeight - chromeSpace(), baseH * 0.65);
           const sx = window.innerWidth  / baseW;
-          const sy = window.innerHeight / baseH;
+          const sy = availH / baseH;
           fit.style.transform = 'scale(' + Math.min(sx, sy) + ')';
         }
       }
