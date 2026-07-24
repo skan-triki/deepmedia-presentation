@@ -7,4 +7,6 @@
       ]
     }
   ]
+,
+  "buildCommand": "node build.js"
 }

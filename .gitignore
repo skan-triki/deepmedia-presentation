@@ -5,3 +5,7 @@ Thumbs.db
 
 .vercel
 .env*
+
+# Generated deck files (built from src/ by build.js)
+slides/index_en.html
+slides/index_fr.html
