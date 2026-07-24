@@ -43,7 +43,7 @@
     background: var(--dm-deck-bg);
   }
   #viewer-wrap.is-mobile-preview {
-    inset: 0.5rem auto calc(0.5rem + var(--chrome-height)) auto;
+    inset: 0.5rem auto 0.5rem auto;
     width: 100%;
     max-width: 430px;
     left: 50%;
@@ -52,6 +52,11 @@
     border-radius: 24px;
     border: 6px solid rgba(255,255,255,0.08);
   }
+  html.is-mobile-viewport #viewer-wrap { inset: 1rem; }
+
+  /* Smartphone: hide parent chrome widget, only mobile header inside iframe */
+  html.is-mobile-viewport .deck__chrome,
+  #viewer-wrap.is-mobile-preview ~ .deck__chrome { display: none !important; }
   #viewer {
     position: absolute;
     inset: 0;
@@ -210,6 +215,10 @@
     if (forceMobile) return true;
     const portrait = window.innerHeight > window.innerWidth;
     return portrait && window.innerWidth <= 768;
+  }
+  function updateMobileClass() {
+    const isMobile = (window.innerHeight > window.innerWidth) && (window.innerWidth <= 768);
+    document.documentElement.classList.toggle('is-mobile-viewport', isMobile);
   }
   function deckUrl(lang) {
     const folder = isMobileViewport() ? 'mobile' : 'slides';
@@ -404,6 +413,8 @@
     }
   }, { passive: true });
   // ── Init ─────────────────────────────────────────────
+  updateMobileClass();
+  window.addEventListener('resize', updateMobileClass);
   loadDeck(false);
 })();
 </script>
