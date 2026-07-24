@@ -1,8 +1,5 @@
 {
-  "builds": [
-    { "src": "deepmedia-presentation.html", "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "src": "/", "dest": "/deepmedia-presentation.html" }
+  "rewrites": [
+    { "source": "/", "destination": "/deepmedia-presentation.html" }
   ]
 }
