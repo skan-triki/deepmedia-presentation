@@ -1104,7 +1104,6 @@
       transition: fill-opacity 520ms ease, stroke 520ms ease;
       fill-opacity: 1;
     }
-    .slide__brand:hover .slide__brand-logo use,
     .slide__brand-link:hover .slide__brand-logo use,
     .slide__brand-link:focus .slide__brand-logo use {
       fill-opacity: 0.5;
@@ -1556,4 +1555,16 @@
       position: absolute; left: 50%; transform: translateX(-50%);
     }
     .deck__mobile-bar-logo svg { width: auto; height: 1.25rem; display: block; }
+    .deck__mobile-bar-logo use {
+      --dm-logo-deep-stroke: transparent;
+      --dm-logo-media-stroke: transparent;
+      transition: fill-opacity 520ms ease, stroke 520ms ease;
+      fill-opacity: 1;
+    }
+    .deck__mobile-bar-logo:hover use,
+    .deck__mobile-bar-logo:focus use {
+      fill-opacity: 0.5;
+      --dm-logo-deep-stroke: #fff;
+      --dm-logo-media-stroke: var(--dm-v-electric);
+    }
     [data-theme="light"] .deck__mobile-bar-logo svg { filter: invert(1) hue-rotate(180deg) brightness(1.15); }
