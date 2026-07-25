@@ -811,7 +811,7 @@
       .slide {
         padding: 2.5rem 2rem 4rem;
         overflow-y: auto;
-        overflow-x: hidden;
+        overflow-x: visible;
         -webkit-overflow-scrolling: touch;
       }
       .slide::-webkit-scrollbar { width: 0; }
