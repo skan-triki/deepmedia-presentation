@@ -17,6 +17,7 @@
       --dm-radius: 14px;
       --dm-radius-sm: 10px;
       --dm-radius-pill: 999px;
+      --dm-hover: transform 0.6s ease-in-out, opacity 0.6s ease-in-out, border-color 0.6s ease-in-out, box-shadow 0.6s ease-in-out, background-color 0.6s ease-in-out, fill-opacity 0.6s ease-in-out, stroke 0.6s ease-in-out;
     }
 
     [data-theme="light"] {
@@ -315,8 +316,7 @@
       padding: 1.1rem;
       display: flex; flex-direction: column; gap: 0.5rem;
       overflow: hidden;
-      transition: transform 300ms cubic-bezier(0.22,1,0.36,1),
-                  border-color 300ms ease, box-shadow 300ms ease;
+      transition: var(--dm-hover);
     }
     .slide__card:hover {
       transform: translateY(-3px);
@@ -352,7 +352,7 @@
       text-align: center; padding: 1.1rem 1rem; border-radius: var(--dm-radius-sm);
       background: linear-gradient(160deg, var(--dm-surface-elevated), var(--dm-surface));
       border: 1px solid var(--dm-border-subtle);
-      transition: transform 300ms cubic-bezier(0.22,1,0.36,1), border-color 300ms ease, box-shadow 300ms ease;
+      transition: var(--dm-hover);
       position: relative; overflow: hidden;
     }
     .slide__stat:hover { transform: translateY(-2px); border-color: rgba(49,207,255,0.25); box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
@@ -377,7 +377,7 @@
       position: relative; padding: 1.1rem;
       background: linear-gradient(160deg, var(--dm-surface-elevated), var(--dm-surface));
       border-radius: var(--dm-radius-sm); border: 1px solid var(--dm-border-subtle);
-      transition: transform 300ms cubic-bezier(0.22,1,0.36,1), border-color 300ms ease, box-shadow 300ms ease;
+      transition: var(--dm-hover);
       overflow: hidden;
     }
     .slide__work-step::before {
@@ -401,7 +401,7 @@
     .slide__compare-col {
       padding: 1.2rem; border-radius: var(--dm-radius-sm);
       border: 1px solid var(--dm-border-subtle); background: linear-gradient(160deg, var(--dm-surface-elevated), var(--dm-surface));
-      transition: transform 300ms cubic-bezier(0.22,1,0.36,1), border-color 300ms ease, box-shadow 300ms ease;
+      transition: var(--dm-hover);
       position: relative; overflow: hidden;
     }
     .slide__compare-col:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
@@ -439,7 +439,7 @@
       display: inline-flex; align-items: center; justify-content: center; text-align: center; gap: 0.4rem; padding: 0.5rem 1.2rem;
       border-radius: var(--dm-radius-pill); font-size: 1.05rem; font-weight: 700;
       background: transparent; border: 1px solid var(--dm-border); color: var(--dm-ink);
-      transition: transform 250ms cubic-bezier(0.22,1,0.36,1), background 250ms ease;
+      transition: var(--dm-hover);
     }
     .slide__badge:hover { transform: translateY(-1px); background: rgba(255,255,255,0.04); }
     [data-theme="light"] .slide__badge:hover { background: rgba(0,0,0,0.04); }
@@ -513,7 +513,7 @@
       color: #fff;
       flex-shrink: 0;
       box-shadow: 0 0 0 4px rgba(49,207,255,0.18);
-      transition: box-shadow 400ms ease, transform 300ms cubic-bezier(0.22,1,0.36,1);
+      transition: var(--dm-hover);
     }
     .slide__tl-step:hover .slide__tl-dot {
       transform: scale(1.15);
@@ -618,7 +618,7 @@
       border-radius: var(--dm-radius-sm);
       position: relative;
       overflow: hidden;
-      transition: transform 300ms cubic-bezier(0.22,1,0.36,1), border-color 300ms ease, box-shadow 300ms ease;
+      transition: var(--dm-hover);
     }
     .slide__module-node:hover {
       transform: translateY(-2px);
@@ -681,9 +681,7 @@
       background: var(--dm-surface); color: var(--dm-ink);
       font-family: inherit; font-size: 0.82rem; font-weight: 600;
       cursor: pointer;
-      transition: background 220ms cubic-bezier(0.22,1,0.36,1),
-                  border-color 220ms ease, color 220ms ease,
-                  transform 220ms cubic-bezier(0.22,1,0.36,1);
+      transition: var(--dm-hover);
     }
     .deck__btn:hover {
       background: var(--dm-surface-elevated); border-color: var(--dm-border);
@@ -709,7 +707,7 @@
 
     /* ── DNA center subtle glow ────────────────────────── */
     .slide__dna-center {
-      transition: border-color 400ms ease, box-shadow 400ms ease;
+      transition: var(--dm-hover);
     }
     .slide__dna-center:hover {
       border-color: rgba(49,207,255,0.45);
@@ -741,7 +739,7 @@
       border-radius: var(--dm-radius-sm);
       border: 1px solid var(--dm-border-subtle);
       box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-      transition: transform 600ms cubic-bezier(0.22,1,0.36,1), box-shadow 600ms ease;
+      transition: var(--dm-hover);
     }
     .slide__media:hover img {
       transform: scale(1.015);
@@ -1094,14 +1092,14 @@
     }
 
     /* ── Logo hover (final) ──────────────────────────── */
-    .slide__brand-link { display: inline-flex; cursor: pointer; transition: opacity 520ms ease; }
+    .slide__brand-link { display: inline-flex; cursor: pointer; transition: var(--dm-hover); }
     .slide__brand-link:hover, .slide__brand-link:focus { opacity: 0.9; }
     .slide__brand-link:active { opacity: 0.7; }
-    .slide__brand-logo { transition: opacity 520ms ease; }
+    .slide__brand-logo { transition: var(--dm-hover); }
     .slide__brand-logo use {
       --dm-logo-deep-stroke: transparent;
       --dm-logo-media-stroke: transparent;
-      transition: fill-opacity 520ms ease, stroke 520ms ease;
+      transition: var(--dm-hover);
       fill-opacity: 1;
     }
     .slide__brand-link:hover .slide__brand-logo use,
@@ -1345,10 +1343,7 @@
     body.mode-mobile .slide__module-node,
     body.mode-mobile .slide__compare-col,
     body.mode-mobile .slide__tl-step {
-      transition: transform 520ms cubic-bezier(0.22,1,0.36,1),
-                  border-color 520ms ease,
-                  box-shadow 520ms ease,
-                  background-color 520ms ease;
+      transition: var(--dm-hover);
     }
     body.mode-mobile .slide__card:hover,
     body.mode-mobile .slide__stat:hover,
@@ -1372,10 +1367,7 @@
     body.mode-mobile .deck__mobile-bar-btn,
     body.mode-mobile .deck__mobile-bar-logo,
     body.mode-mobile .slide__badge {
-      transition: transform 520ms cubic-bezier(0.22,1,0.36,1),
-                  opacity 520ms ease,
-                  border-color 520ms ease,
-                  background-color 520ms ease;
+      transition: var(--dm-hover);
     }
     body.mode-mobile .deck__mobile-bar-btn:hover,
     body.mode-mobile .slide__badge:hover {
@@ -1445,7 +1437,7 @@
       overflow-wrap: break-word; word-wrap: break-word; hyphens: auto;
     }
     /* Logo hover */
-    body.mode-mobile .slide__brand-link { transition: opacity 520ms ease; }
+    body.mode-mobile .slide__brand-link { transition: var(--dm-hover); }
     body.mode-mobile .slide__brand-link:hover, body.mode-mobile .slide__brand-link:focus {
       opacity: 0.9; border-radius: 6px;
       box-shadow: 0 0 0 3px rgba(49,207,255,0.35); background: rgba(49,207,255,0.06);
@@ -1500,7 +1492,7 @@
     html.mobile-linear .slide:last-child { border-bottom: none; }
     html.mobile-linear .slide.is-active { z-index: auto; }
     html.mobile-linear .slide *,
-    html.mobile-linear .slide { animation: none !important; transition: none !important; }
+    html.mobile-linear .slide { animation: none !important; }
     html.mobile-linear .slide__brand,
     html.mobile-linear .slide__number,
     html.mobile-linear .slide__footer { display: none !important; }
@@ -1531,7 +1523,7 @@
       width: 2.75rem; height: 2.75rem; border-radius: 50%;
       border: 1px solid var(--dm-border-subtle); background: var(--dm-surface);
       color: var(--dm-ink); cursor: pointer;
-      transition: transform 200ms ease, border-color 200ms ease;
+      transition: var(--dm-hover);
     }
     .deck__mobile-bar-btn--text {
       width: auto; min-width: 2.75rem; padding: 0 0.7rem;
@@ -1558,7 +1550,7 @@
     .deck__mobile-bar-logo use {
       --dm-logo-deep-stroke: transparent;
       --dm-logo-media-stroke: transparent;
-      transition: fill-opacity 520ms ease, stroke 520ms ease;
+      transition: var(--dm-hover);
       fill-opacity: 1;
     }
     .deck__mobile-bar-logo:hover use,
