@@ -729,7 +729,7 @@
       min-height: 0;
     }
     .slide__media-text {
-      display: flex; flex-direction: column; justify-content: center; min-width: 0; min-height: 0;
+      display: flex; flex-direction: column; justify-content: center; min-width: 0; min-height: 0; padding: 1rem;
     }
     .slide__media {
       width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; overflow: hidden;
@@ -832,7 +832,7 @@
         flex-direction: column;
         gap: 1.5rem;
       }
-      .slide__media-text { order: 1; max-width: 100%; overflow-x: hidden; }
+      .slide__media-text { order: 1; max-width: 100%; }
       .slide__media { order: 2; width: 100%; max-width: 100%; }
       .slide__media img { max-height: 600px; object-fit: contain; }
       .slide__media--dual { gap: 1rem; }
@@ -929,7 +929,6 @@
       .slide__work-grid, .slide__timeline, .slide__metrics,
       .slide__dna-center, .slide__badges {
         max-width: 100%;
-        overflow-x: hidden;
       }
 
       /* Chrome nav inside slides */
@@ -1041,7 +1040,7 @@
       .slide__problem { margin-bottom: 0.6rem; }
       .slide__value { margin-top: 0.6rem; }
       .slide__cards, .slide__module-grid, .slide__work-grid, .slide__stats, .slide__compare, .slide__timeline { margin-top: 0.6rem; }
-      .slide__cards, .slide__module-grid, .slide__work-grid, .slide__stats, .slide__compare, .slide__timeline, .slide__cols, .slide__metrics, .slide__badges { max-width: 100%; min-width: 0; overflow-x: hidden; }
+      .slide__cards, .slide__module-grid, .slide__work-grid, .slide__stats, .slide__compare, .slide__timeline, .slide__cols, .slide__metrics, .slide__badges { max-width: 100%; min-width: 0; }
       .slide__card { display: flex; flex-direction: row; align-items: flex-start; gap: 0.8rem; padding: 0.9rem 1.1rem; }
       .slide__card-icon { flex-shrink: 0; width: 1.4rem; height: 1.4rem; }
       .slide__card-title { font-size: 0.92rem; margin: 0 0 0.15rem; }
@@ -1440,6 +1439,19 @@
     body.mode-mobile .slide__brand-link:hover, body.mode-mobile .slide__brand-link:focus {
       opacity: 0.9; border-radius: 6px;
       box-shadow: 0 0 0 3px rgba(49,207,255,0.35); background: rgba(49,207,255,0.06);
+    }
+    /* Restore visible overflow for shadow/glow on interactive blocks */
+    body.mode-mobile .slide__content,
+    body.mode-mobile .slide__media-text,
+    body.mode-mobile .slide__cards,
+    body.mode-mobile .slide__module-grid,
+    body.mode-mobile .slide__work-grid,
+    body.mode-mobile .slide__stats,
+    body.mode-mobile .slide__compare,
+    body.mode-mobile .slide__timeline,
+    body.mode-mobile .slide__cols,
+    body.mode-mobile .slide__metrics {
+      overflow-x: visible;
     }
 
     /* ── Mobile linear page (smartphone 9:16, no slides) ─ */
