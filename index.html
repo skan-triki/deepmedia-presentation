@@ -221,8 +221,7 @@
   // ── Load iframe ──────────────────────────────────────
   function isMobileViewport() {
     if (forceMobile) return true;
-    const portrait = window.innerHeight > window.innerWidth;
-    return portrait && window.innerWidth <= 768;
+    return Math.min(window.innerWidth, window.innerHeight) <= 480;
   }
   function updateMobileClass() {
     const min = Math.min(window.innerWidth, window.innerHeight);
