@@ -1450,7 +1450,8 @@
     body.mode-mobile .slide__compare,
     body.mode-mobile .slide__timeline,
     body.mode-mobile .slide__cols,
-    body.mode-mobile .slide__metrics {
+    body.mode-mobile .slide__metrics,
+    body.mode-mobile .slide__tl-step {
       overflow-x: visible;
     }
 
