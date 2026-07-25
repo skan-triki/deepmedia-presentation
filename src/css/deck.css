@@ -1411,7 +1411,7 @@
 
     /* Overflow prevention */
     body.mode-mobile .slide__content, body.mode-mobile .slide__media-text,
-    body.mode-mobile .slide__media, body.mode-mobile .slide__cards,
+    body.mode-mobile .slide__cards,
     body.mode-mobile .slide__module-grid, body.mode-mobile .slide__work-grid,
     body.mode-mobile .slide__stats, body.mode-mobile .slide__compare,
     body.mode-mobile .slide__timeline, body.mode-mobile .slide__cols,
@@ -1421,7 +1421,7 @@
     body.mode-mobile .slide__compare-col, body.mode-mobile .slide__tl-step,
     body.mode-mobile .slide__dna-center, body.mode-mobile .slide__problem,
     body.mode-mobile .slide__value {
-      min-width: 0; min-height: 0; max-width: 100%; overflow-x: hidden;
+      min-width: 0; min-height: 0; max-width: 100%; overflow-x: visible;
     }
     body.mode-mobile .slide__title, body.mode-mobile .slide__lead,
     body.mode-mobile .slide__subtitle, body.mode-mobile .slide__promise,
@@ -1440,21 +1440,6 @@
       opacity: 0.9; border-radius: 6px;
       box-shadow: 0 0 0 3px rgba(49,207,255,0.35); background: rgba(49,207,255,0.06);
     }
-    /* Restore visible overflow for shadow/glow on interactive blocks */
-    body.mode-mobile .slide__content,
-    body.mode-mobile .slide__media-text,
-    body.mode-mobile .slide__cards,
-    body.mode-mobile .slide__module-grid,
-    body.mode-mobile .slide__work-grid,
-    body.mode-mobile .slide__stats,
-    body.mode-mobile .slide__compare,
-    body.mode-mobile .slide__timeline,
-    body.mode-mobile .slide__cols,
-    body.mode-mobile .slide__metrics,
-    body.mode-mobile .slide__tl-step {
-      overflow-x: visible;
-    }
-
     /* ── Mobile linear page (smartphone 9:16, no slides) ─ */
     html.mobile-linear,
     html.mobile-linear body {
